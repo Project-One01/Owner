@@ -1,4 +1,4 @@
-const APPS_SCRIPT_URL = `https://script.google.com/macros/s/AKfycbyzo8pozhY5we_tT1fSqPBrVh6GFdjYZHrfFWhHL2nu0fwXH5bwTWOElNQaqe6AjN0H/exec`;
+const APPS_SCRIPT_URL = `https://script.google.com/macros/s/AKfycbz_scEuncA-CVdRrso75xcQw-xoQCaLSIrRt3OjbAHsh5P2iDmusZvITkdEJRI9u9vK/exec`;
 
 function parseYYYYMMDD(dateString) {
     if (!dateString) return new Date();
@@ -181,6 +181,31 @@ function getBanyakItemPerTurunan(jenisKelompok, customValue = null) {
         return customValue && customValue > 0 ? customValue : 1;
     }
     return 1;
+}
+
+function calculateTotalStokForBarang(idBarang, barangDataArray, source = 'BM1') {
+  // Ambil semua record untuk barang ini (utama + history)
+  const allRecords = barangDataArray.filter(b => b.id === idBarang);
+  
+  let totalStok = 0;
+  
+  allRecords.forEach(record => {
+    const banyakItem = record.banyakItemPerTurunan || 1;
+    let stokKelompok = 0;
+    let stokTurunan = 0;
+    
+    if (source === 'BM1') {
+      stokKelompok = record.stokKelompokBM1 || 0;
+      stokTurunan = record.stokTurunanBM1 || 0;
+    } else {
+      stokKelompok = record.stokKelompokBM2 || 0;
+      stokTurunan = record.stokTurunanBM2 || 0;
+    }
+    
+    totalStok += (stokKelompok * banyakItem) + stokTurunan;
+  });
+  
+  return totalStok;
 }
 
 function isKelompokFixed(jenisKelompok) {

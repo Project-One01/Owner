@@ -306,6 +306,973 @@ td[colspan] { text-align: center; padding: 20px; }
 .form-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
 @media print { .data-table th:nth-child(9), .data-table td:nth-child(9) { display: none; } body { font-family: Arial, sans-serif; } h2 { text-align: center; margin-bottom: 5px; } .print-period { text-align: center; margin-top: 0; font-size: 14px; } table { width: 100%; border-collapse: collapse; margin-top: 20px; } th, td { border: 1px solid #000; padding: 8px; text-align: left; font-size: 12px; } th { background-color: #f2f2f2; } .summary { margin-top: 20px; text-align: right; } .summary div { font-weight: bold; margin-bottom: 5px; } .container { display: block; } .sidebar, .header, .btn-menu, .btn-primary, .btn-search, .btn-checkout, .btn-edit, .btn-delete, .nav-menu { display: none !important; } .main-content, .page { padding: 0; margin: 0; box-shadow: none; width: 100%; } .data-table { margin-top: 0; } .keuangan-summary, .realtime-stats, .diagram-filter, .chart-container, .chart-info { display: none !important; } .data-table th, .data-table td { border: 1px solid #000; padding: 5px; font-size: 10px; } #keuangan table, #stok table { page-break-after: always; } .table-container { overflow-x: visible; } }
 @media (max-width: 1024px) { .transaksi-container, .stok-container { grid-template-columns: 1fr; gap: 20px; } .search-section { order: 2; } .cart-section { order: 1; } .keuangan-summary { grid-template-columns: repeat(3, 1fr); } .keuangan-filter-buttons { gap: 8px; } .btn-filter-keuangan { padding: 8px 16px; font-size: 13px; } .stats-grid { grid-template-columns: repeat(2, 1fr); } .realtime-stats { grid-template-columns: repeat(2, 1fr); } .stok-input-grid { grid-template-columns: 1fr 1fr; } .chart-container { height: 350px; } .table-container { -webkit-overflow-scrolling: touch; } .data-table th, .data-table td { padding: 10px; font-size: 13px; } .modal-content { width: 80%; max-width: 600px; } .filter-bulan { flex-wrap: wrap; } .section-header, .stok-header, .keuangan-header, .diagram-header { flex-wrap: wrap; gap: 10px; } .refund-search-controls { flex-wrap: wrap; } .refund-search-name { min-width: 200px; } .search-box-listbarang { width: 100%; max-width: 400px; } }
-@media (max-width: 768px) { .btn-menu { display: block; } .stok-source-tabs { gap: 8px; } .tab-stok-btn { padding: 14px 10px; font-size: 13px; } .sidebar { position: fixed; z-index: 200; left: -250px; top: 0; height: 100vh; width: 250px; transition: left 0.3s ease; background-color: #ffffff; box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2); } .sidebar.show { left: 0; } .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 199; } .sidebar-overlay.show { display: block; } .header { position: sticky; top: 0; z-index: 100; } .connection-status { top: auto; bottom: 10px; right: 10px; } .deposit-section { padding: 12px; margin: 15px 0; } .deposit-header { flex-direction: column; gap: 8px; } .btn-deposit, .btn-deposit-cancel { width: 100%; padding: 14px; font-size: 14px; } .deposit-search-section { padding: 12px; } .deposit-search-section h4 { font-size: 13px; } .deposit-customer-info { padding: 10px; } .deposit-customer-name { font-size: 13px; } .deposit-customer-balance { font-size: 13px; } .stok-selector { flex-direction: column; gap: 8px; } .btn-stok-selector { width: 100%; padding: 14px; } .cart-header { flex-direction: column; align-items: flex-start; } .stok-selector { width: 100%; } .btn-stok { flex: 1; justify-content: center; padding: 10px 12px; } .stok-mode-buttons { flex-direction: column; } .btn-mode { width: 100%; justify-content: center; } .kelompok-buttons { grid-template-columns: repeat(2, 1fr); gap: 8px; } .btn-kelompok { padding: 10px 6px; font-size: 12px; } .btn-kelompok i { font-size: 18px; } .main-content { padding: 10px; width: 100%; } .header-left { flex: 1; min-width: 0; } #pageTitle { font-size: 18px; margin-left: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .header-right { gap: 10px; font-size: 12px; flex-wrap: wrap; } .date-time { display: none; } .logo-image { width: 50px; height: 50px; } .page { padding: 15px; } .stats-grid { grid-template-columns: 1fr; gap: 15px; } .stat-card { padding: 15px; } .stat-icon { width: 45px; height: 45px; font-size: 18px; margin-right: 12px; } .stat-info h3 { font-size: 20px; } .stat-info p { font-size: 12px; } .dashboard-content { flex-direction: column; gap: 15px; } .realtime-stats { grid-template-columns: 1fr; gap: 15px; } .rt-card { padding: 15px; } .rt-card h4 { font-size: 14px; } .rt-card p { font-size: 24px; } .transaksi-container, .stok-container, .refund-container { grid-template-columns: 1fr; gap: 15px; width: 100%; max-width: 100vw; overflow-x: hidden; margin: 0; padding: 0; } .search-section, .cart-section, .input-section, .table-list-section { padding: 15px; width: 100%; max-width: 100%; box-sizing: border-box; overflow: hidden; margin: 0; } .table-list-section .table-container { margin: 0; padding: 0; width: 100%; overflow-x: auto; } .table-list-section .data-table { min-width: 600px; width: max-content; } .search-box { flex-direction: column; gap: 10px; } #searchBarang, #searchBarangStok, #searchBarangList, #searchBarangRefund { width: 100%; } .btn-search { width: 100%; margin-left: 0; padding: 12px; } .search-box-listbarang { width: 100%; } .search-results, .search-results-refund { max-height: 300px; width: 100%; box-sizing: border-box; overflow-x: hidden; overflow-y: auto; } .search-item { padding: 8px; } .search-item-header { font-size: 11px; } .search-item-name { font-size: 14px; } .cart-items, .refund-items-box { max-height: 250px; width: 100%; box-sizing: border-box; overflow-x: hidden; overflow-y: auto; } .cart-item { padding: 8px; } .cart-item-controls { flex-direction: column; gap: 10px; align-items: flex-start; } .qty-control { width: 100%; justify-content: space-between; } .price-manual-input { width: 100%; margin-left: 0; margin-top: 5px; } .price-control-group { width: 100%; flex-wrap: wrap; } .summary-row { font-size: 14px; } #paymentAmount { width: 120px; } .btn-checkout, .btn-finish-refund { padding: 15px; font-size: 16px; } .stok-input-grid { grid-template-columns: 1fr; gap: 10px; width: 100%; } .keuangan-summary { grid-template-columns: 1fr 1fr; gap: 10px; } .summary-card { padding: 12px; } .summary-card h4 { font-size: 12px; } .summary-card p { font-size: 18px; } .keuangan-filter-buttons { width: 100%; } .btn-filter-keuangan { flex: 1; justify-content: center; padding: 10px 12px; font-size: 12px; } .refund-container { grid-template-columns: 1fr; } .refund-search-controls { flex-direction: column; gap: 10px; } .refund-search-name, .refund-search-date { width: 100%; } .refund-transaction-list { max-height: 300px; overflow-x: auto; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 4px; width: 100%; box-sizing: border-box; margin: 0; } #refundTransactionListTable { min-width: 600px; width: max-content; } .table-container { margin: 0; padding: 0; width: 100%; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; } .data-table { min-width: 600px; width: max-content; } .data-table th, .data-table td { padding: 8px; font-size: 12px; white-space: nowrap; } .data-table td button { display: block; width: 100%; margin-bottom: 5px; } .data-table td button:last-child { margin-bottom: 0; } .chart-container { height: 250px; } .stats-row { grid-template-columns: 1fr; gap: 10px; } .stat-item { font-size: 13px; } .stat-item strong { font-size: 16px; } .diagram-filter { display: flex; flex-direction: column; gap: 10px; } .diagram-filter .btn-filter { width: 100%; margin-right: 0; padding: 10px; } .section-header, .stok-header, .keuangan-header, .diagram-header { flex-direction: column; align-items: flex-start; gap: 10px; } .section-header h3 { font-size: 18px; } .filter-bulan { flex-wrap: wrap; width: 100%; } .filter-bulan select, .filter-bulan button { flex: 1; min-width: 120px; } .pengeluaran-tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; white-space: nowrap; margin-bottom: 15px; } .tab-btn { padding: 8px 12px; font-size: 14px; display: inline-block; } .modal-content { width: 95%; max-width: none; margin: 10% auto; padding: 15px; } .modal { padding-top: 20px; } .form-group label { font-size: 13px; } .form-group input, .form-group textarea, select { font-size: 16px; padding: 12px; } .form-actions { flex-direction: column; gap: 10px; } .form-actions button { width: 100%; } .btn-primary, .btn-secondary { width: 100%; justify-content: center; padding: 12px; } .total-simpanan, .total-biaya, .total-gaji { font-size: 16px; padding: 8px; } .realtime-list { max-height: 300px; } .realtime-item { padding: 8px; font-size: 13px; } .trans-item, .stock-item { flex-direction: column; align-items: flex-start; gap: 5px; } .trans-info h4, .stock-info h4 { font-size: 14px; } .trans-info p { font-size: 11px; } .trans-amount, .stock-alert { align-self: flex-end; font-size: 14px; } .customer-info, .refund-info-box { gap: 8px; } .subtotal-input, .grand-total-input { width: 100%; max-width: 150px; } .price-control-group { gap: 8px; flex-wrap: wrap; } #keuanganTableBody .barang-list { font-size: 11px; } .btn-qty, .btn-remove, .btn-edit, .btn-delete, .btn-print, .btn-select-refund { min-height: 44px; min-width: 44px; } }
+@media (max-width: 768px) {
+  /* MENU BUTTON */
+  .btn-menu { 
+    display: block; 
+  }
+  
+  /* STOK SOURCE TABS */
+  .stok-source-tabs { 
+    gap: 8px; 
+  }
+  
+  .tab-stok-btn { 
+    padding: 14px 10px; 
+    font-size: 13px; 
+  }
+  
+  /* SIDEBAR */
+  .sidebar { 
+    position: fixed; 
+    z-index: 200; 
+    left: -250px; 
+    top: 0; 
+    height: 100vh; 
+    width: 250px; 
+    transition: left 0.3s ease; 
+    background-color: #ffffff; 
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2); 
+  }
+  
+  .sidebar.show { 
+    left: 0; 
+  }
+  
+  .sidebar-overlay { 
+    display: none; 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%; 
+    background-color: rgba(0, 0, 0, 0.5); 
+    z-index: 199; 
+  }
+  
+  .sidebar-overlay.show { 
+    display: block; 
+  }
+  
+  /* HEADER */
+  .header { 
+    position: sticky; 
+    top: 0; 
+    z-index: 100; 
+  }
+  
+  /* CONNECTION STATUS */
+  .connection-status { 
+    top: auto; 
+    bottom: 10px; 
+    right: 10px; 
+  }
+  
+  /* DEPOSIT SECTION */
+  .deposit-section { 
+    padding: 12px; 
+    margin: 15px 0; 
+  }
+  
+  .deposit-header { 
+    flex-direction: column; 
+    gap: 8px; 
+  }
+  
+  .btn-deposit, 
+  .btn-deposit-cancel { 
+    width: 100%; 
+    padding: 14px; 
+    font-size: 14px; 
+  }
+  
+  .deposit-search-section { 
+    padding: 12px; 
+  }
+  
+  .deposit-search-section h4 { 
+    font-size: 13px; 
+  }
+  
+  .deposit-customer-info { 
+    padding: 10px; 
+  }
+  
+  .deposit-customer-name { 
+    font-size: 13px; 
+  }
+  
+  .deposit-customer-balance { 
+    font-size: 13px; 
+  }
+  
+  /* STOK SELECTOR */
+  .stok-selector { 
+    flex-direction: column; 
+    gap: 8px; 
+  }
+  
+  .btn-stok-selector { 
+    width: 100%; 
+    padding: 14px; 
+  }
+  
+  .cart-header { 
+    flex-direction: column; 
+    align-items: flex-start; 
+  }
+  
+  .stok-selector { 
+    width: 100%; 
+  }
+  
+  .btn-stok { 
+    flex: 1; 
+    justify-content: center; 
+    padding: 10px 12px; 
+  }
+  
+  /* STOK MODE BUTTONS */
+  .stok-mode-buttons { 
+    flex-direction: column; 
+  }
+  
+  .btn-mode { 
+    width: 100%; 
+    justify-content: center; 
+  }
+  
+  /* KELOMPOK BUTTONS */
+  .kelompok-buttons { 
+    grid-template-columns: repeat(2, 1fr); 
+    gap: 8px; 
+  }
+  
+  .btn-kelompok { 
+    padding: 10px 6px; 
+    font-size: 12px; 
+  }
+  
+  .btn-kelompok i { 
+    font-size: 18px; 
+  }
+  
+  /* MAIN CONTENT */
+  .main-content { 
+    padding: 10px; 
+    width: 100%; 
+  }
+  
+  .header-left { 
+    flex: 1; 
+    min-width: 0; 
+  }
+  
+  #pageTitle { 
+    font-size: 18px; 
+    margin-left: 10px; 
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+  }
+  
+  .header-right { 
+    gap: 10px; 
+    font-size: 12px; 
+    flex-wrap: wrap; 
+  }
+  
+  .date-time { 
+    display: none; 
+  }
+  
+  .logo-image { 
+    width: 50px; 
+    height: 50px; 
+  }
+  
+  /* PAGE */
+  .page { 
+    padding: 15px; 
+  }
+  
+  /* STATS GRID */
+  .stats-grid { 
+    grid-template-columns: 1fr; 
+    gap: 15px; 
+  }
+  
+  .stat-card { 
+    padding: 15px; 
+  }
+  .progress-bar {
+  width: 100%;
+  height: 50%;
+  background: linear-gradient(9deg, #3b82f6, #2563eb, #1d4ed8);
+  animation: progressBar 1.5s ease-in-out infinite;
+}
+
+@keyframes progressBar {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+  .stat-icon { 
+    width: 45px; 
+    height: 45px; 
+    font-size: 18px; 
+    margin-right: 12px; 
+  }
+  
+  .stat-info h3 { 
+    font-size: 20px; 
+  }
+  
+  .stat-info p { 
+    font-size: 12px; 
+  }
+  
+  /* DASHBOARD CONTENT */
+  .dashboard-content { 
+    flex-direction: column; 
+    gap: 15px; 
+  }
+  
+  /* REALTIME STATS */
+  .realtime-stats { 
+    grid-template-columns: 1fr; 
+    gap: 15px; 
+  }
+  
+  .rt-card { 
+    padding: 15px; 
+  }
+  
+  .rt-card h4 { 
+    font-size: 14px; 
+  }
+  
+  .rt-card p { 
+    font-size: 24px; 
+  }
+  
+  /* TRANSAKSI CONTAINER - PERBAIKAN URUTAN */
+  .transaksi-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* SEARCH SECTION - URUTAN 1 (ATAS) */
+  .search-section {
+    order: 1;
+    padding: 15px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+    margin: 0;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* CART SECTION - URUTAN 2 (BAWAH) */
+  .cart-section {
+    order: 2;
+    padding: 15px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+    margin: 0;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* STOK CONTAINER */
+  .stok-container { 
+    grid-template-columns: 1fr; 
+    gap: 15px; 
+    width: 100%; 
+    max-width: 100vw; 
+    overflow-x: hidden; 
+    margin: 0; 
+    padding: 0; 
+  }
+  
+  .input-section, 
+  .table-list-section { 
+    padding: 15px; 
+    width: 100%; 
+    max-width: 100%; 
+    box-sizing: border-box; 
+    overflow: hidden; 
+    margin: 0; 
+  }
+  
+  .table-list-section .table-container { 
+    margin: 0; 
+    padding: 0; 
+    width: 100%; 
+    overflow-x: auto; 
+  }
+  
+  .table-list-section .data-table { 
+    min-width: 600px; 
+    width: max-content; 
+  }
+  
+  /* SEARCH BOX */
+  .search-box { 
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    width: 100%;
+    margin-bottom: 15px;
+  }
+  
+  #searchBarang, 
+  #searchBarangStok, 
+  #searchBarangList, 
+  #searchBarangRefund { 
+    flex: 1;
+    width: 100%;
+    padding: 12px;
+    font-size: 14px;
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+  }
+  
+  .btn-search { 
+    width: auto;
+    min-width: 50px;
+    margin-left: 0;
+    padding: 12px 16px;
+    font-size: 16px;
+    border-radius: 6px;
+  }
+  
+  .search-box-listbarang { 
+    width: 100%; 
+  }
+  
+  /* SEARCH RESULTS */
+  .search-results, 
+  .search-results-refund { 
+    max-height: 300px; 
+    width: 100%; 
+    box-sizing: border-box; 
+    overflow-x: hidden; 
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    margin-top: 10px;
+  }
+  
+  .search-item { 
+    padding: 12px;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .search-item:hover,
+  .search-item:active {
+    background-color: #e3f2fd;
+  }
+  
+  .search-item-header { 
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--text-gray);
+    margin-bottom: 5px;
+  }
+  
+  .search-item-name { 
+    font-weight: 600;
+    font-size: 14px;
+    margin: 5px 0;
+    color: var(--text-dark);
+  }
+  
+  .search-item-prices {
+    font-size: 12px;
+    color: var(--text-gray);
+    margin-top: 5px;
+  }
+  
+  .search-item-stock {
+    font-size: 11px;
+    color: var(--text-gray);
+    margin-top: 5px;
+  }
+  
+  .kelompok-badge {
+    background-color: #e3f2fd;
+    color: #1565c0;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+  }
+  
+  /* CART ITEMS */
+  .cart-items, 
+  .refund-items-box { 
+    max-height: 250px; 
+    width: 100%; 
+    box-sizing: border-box; 
+    overflow-x: hidden; 
+    overflow-y: auto;
+    margin-bottom: 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 8px;
+  }
+  
+  .cart-item { 
+    padding: 12px;
+    margin-bottom: 10px;
+    background-color: #f9fafb;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+  }
+  
+  .cart-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .cart-item-name {
+    font-weight: 600;
+    font-size: 14px;
+    flex: 1;
+    margin-right: 10px;
+  }
+  
+  .btn-remove {
+    background: none;
+    border: none;
+    color: var(--danger-color);
+    cursor: pointer;
+    font-size: 18px;
+    padding: 5px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+  
+  /* CART ITEM CONTROLS */
+  .cart-item-controls { 
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+    margin-bottom: 10px;
+  }
+  
+  .qty-control { 
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 8px;
+  }
+  
+  .btn-qty {
+    background-color: var(--primary-color);
+    color: #ffffff;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: 16px;
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .qty-input {
+    width: 60px;
+    text-align: center;
+    padding: 10px;
+    font-size: 16px;
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+  }
+  
+  .price-manual-input { 
+    width: 100%;
+    padding: 12px;
+    margin: 0;
+    font-size: 14px;
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    text-align: right;
+  }
+  
+  .price-control-group { 
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+  
+  .price-selector {
+    width: 100%;
+    padding: 12px;
+    font-size: 14px;
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    background-color: #ffffff;
+  }
+  
+  /* CART ITEM SUBTOTAL */
+  .cart-item-subtotal-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-color);
+  }
+  
+  .subtotal-input {
+    width: 120px;
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    text-align: right;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  
+  /* CART SUMMARY */
+  .cart-summary {
+    padding-top: 15px;
+    border-top: 2px solid var(--border-color);
+  }
+  
+  .summary-row { 
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 14px;
+  }
+  
+  .summary-row span:first-child {
+    font-weight: 600;
+  }
+  
+  .total-price {
+    font-weight: 700;
+    color: var(--primary-color);
+    font-size: 18px;
+  }
+  
+  .grand-total-input {
+    width: 120px;
+    padding: 8px;
+    border: 2px solid var(--primary-color);
+    border-radius: 6px;
+    text-align: right;
+    font-weight: bold;
+    font-size: 16px;
+  }
+  
+  #paymentAmount { 
+    width: 120px;
+    padding: 10px;
+    text-align: right;
+    font-size: 16px;
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+  }
+  
+  .change-price {
+    font-weight: 700;
+    color: var(--success-color);
+    font-size: 16px;
+  }
+  
+  /* CUSTOMER INFO */
+  .customer-info, 
+  .refund-info-box { 
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 15px 0;
+  }
+  
+  .customer-info input,
+  .customer-info textarea {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+  }
+  
+  .customer-info textarea {
+    min-height: 80px;
+    resize: vertical;
+  }
+  
+  /* CART EMPTY */
+  .cart-empty,
+  .search-empty {
+    text-align: center;
+    color: var(--text-gray);
+    padding: 30px 15px;
+    font-size: 14px;
+  }
+  
+  /* CHECKOUT BUTTON */
+  .btn-checkout, 
+  .btn-finish-refund { 
+    width: 100%; 
+    padding: 16px;
+    background-color: var(--success-color);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  
+  .btn-checkout:hover,
+  .btn-checkout:active {
+    background-color: #059669;
+  }
+  
+  /* STOK INPUT GRID */
+  .stok-input-grid { 
+    grid-template-columns: 1fr; 
+    gap: 10px; 
+    width: 100%; 
+  }
+  
+  /* KEUANGAN SUMMARY */
+  .keuangan-summary { 
+    grid-template-columns: 1fr 1fr; 
+    gap: 10px; 
+  }
+  
+  .summary-card { 
+    padding: 12px; 
+  }
+  
+  .summary-card h4 { 
+    font-size: 12px; 
+  }
+  
+  .summary-card p { 
+    font-size: 18px; 
+  }
+  
+  .keuangan-filter-buttons { 
+    width: 100%; 
+  }
+  
+  .btn-filter-keuangan { 
+    flex: 1; 
+    justify-content: center; 
+    padding: 10px 12px; 
+    font-size: 12px; 
+  }
+  
+  /* REFUND CONTAINER */
+  .refund-container { 
+    grid-template-columns: 1fr; 
+  }
+  
+  .refund-search-controls { 
+    flex-direction: column; 
+    gap: 10px; 
+  }
+  
+  .refund-search-name, 
+  .refund-search-date { 
+    width: 100%; 
+  }
+  
+  .refund-transaction-list { 
+    max-height: 300px; 
+    overflow-x: auto; 
+    overflow-y: auto; 
+    border: 1px solid var(--border-color); 
+    border-radius: 4px; 
+    width: 100%; 
+    box-sizing: border-box; 
+    margin: 0; 
+  }
+  
+  #refundTransactionListTable { 
+    min-width: 600px; 
+    width: max-content; 
+  }
+  
+  /* TABLE CONTAINER */
+  .table-container { 
+    margin: 0; 
+    padding: 0; 
+    width: 100%; 
+    max-width: 100%; 
+    overflow-x: auto; 
+    -webkit-overflow-scrolling: touch; 
+  }
+  
+  .data-table { 
+    min-width: 600px; 
+    width: max-content; 
+  }
+  
+  .data-table th, 
+  .data-table td { 
+    padding: 8px; 
+    font-size: 12px; 
+    white-space: nowrap; 
+  }
+  
+  .data-table td button { 
+    display: block; 
+    width: 100%; 
+    margin-bottom: 5px; 
+  }
+  
+  .data-table td button:last-child { 
+    margin-bottom: 0; 
+  }
+  
+  /* CHART CONTAINER */
+  .chart-container { 
+    height: 250px; 
+  }
+  
+  .stats-row { 
+    grid-template-columns: 1fr; 
+    gap: 10px; 
+  }
+  
+  .stat-item { 
+    font-size: 13px; 
+  }
+  
+  .stat-item strong { 
+    font-size: 16px; 
+  }
+  
+  /* DIAGRAM FILTER */
+  .diagram-filter { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 10px; 
+  }
+  
+  .diagram-filter .btn-filter { 
+    width: 100%; 
+    margin-right: 0; 
+    padding: 10px; 
+  }
+  
+  /* SECTION HEADER */
+  .section-header, 
+  .stok-header, 
+  .keuangan-header, 
+  .diagram-header { 
+    flex-direction: column; 
+    align-items: flex-start; 
+    gap: 10px; 
+  }
+  
+  .section-header h3 { 
+    font-size: 18px; 
+  }
+  
+  .filter-bulan { 
+    flex-wrap: wrap; 
+    width: 100%; 
+  }
+  
+  .filter-bulan select, 
+  .filter-bulan button { 
+    flex: 1; 
+    min-width: 120px; 
+  }
+  
+  /* PENGELUARAN TABS */
+  .pengeluaran-tabs { 
+    overflow-x: auto; 
+    -webkit-overflow-scrolling: touch; 
+    white-space: nowrap; 
+    margin-bottom: 15px; 
+  }
+  
+  .tab-btn { 
+    padding: 8px 12px; 
+    font-size: 14px; 
+    display: inline-block; 
+  }
+  
+  /* MODAL */
+  .modal-content { 
+    width: 95%; 
+    max-width: none; 
+    margin: 10% auto; 
+    padding: 15px; 
+  }
+  
+  .modal { 
+    padding-top: 20px; 
+  }
+  
+  .form-group label { 
+    font-size: 13px; 
+  }
+  
+  .form-group input, 
+  .form-group textarea, 
+  select { 
+    font-size: 16px; 
+    padding: 12px; 
+  }
+  
+  .form-actions { 
+    flex-direction: column; 
+    gap: 10px; 
+  }
+  
+  .form-actions button { 
+    width: 100%; 
+  }
+  
+  .btn-primary, 
+  .btn-secondary { 
+    width: 100%; 
+    justify-content: center; 
+    padding: 12px; 
+  }
+  
+  /* TOTAL SIMPANAN */
+  .total-simpanan, 
+  .total-biaya, 
+  .total-gaji { 
+    font-size: 16px; 
+    padding: 8px; 
+  }
+  
+  /* REALTIME LIST */
+  .realtime-list { 
+    max-height: 300px; 
+  }
+  
+  .realtime-item { 
+    padding: 8px; 
+    font-size: 13px; 
+  }
+  
+  /* TRANS ITEM */
+  .trans-item, 
+  .stock-item { 
+    flex-direction: column; 
+    align-items: flex-start; 
+    gap: 5px; 
+  }
+  
+  .trans-info h4, 
+  .stock-info h4 { 
+    font-size: 14px; 
+  }
+  
+  .trans-info p { 
+    font-size: 11px; 
+  }
+  
+  .trans-amount, 
+  .stock-alert { 
+    align-self: flex-end; 
+    font-size: 14px; 
+  }
+  
+  /* SUBTOTAL INPUT */
+  .subtotal-input, 
+  .grand-total-input { 
+    width: 100%; 
+    max-width: 150px; 
+  }
+  
+  .price-control-group { 
+    gap: 8px; 
+    flex-wrap: wrap; 
+  }
+  
+  /* KEUANGAN TABLE BODY */
+  #keuanganTableBody .barang-list { 
+    font-size: 11px; 
+  }
+  
+  /* BUTTON SIZES */
+  .btn-qty, 
+  .btn-remove, 
+  .btn-edit, 
+  .btn-delete, 
+  .btn-print, 
+  .btn-select-refund { 
+    min-height: 44px; 
+    min-width: 44px; 
+  }
+  
+  /* STOK BADGE */
+  .stok-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    margin-left: 5px;
+    vertical-align: middle;
+  }
+  
+  /* SCROLLBAR STYLING */
+  .search-results::-webkit-scrollbar,
+  .cart-items::-webkit-scrollbar,
+  .refund-items-box::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .search-results::-webkit-scrollbar-track,
+  .cart-items::-webkit-scrollbar-track,
+  .refund-items-box::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 3px;
+  }
+  
+  .search-results::-webkit-scrollbar-thumb,
+  .cart-items::-webkit-scrollbar-thumb,
+  .refund-items-box::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+  }
+}
 @media (max-width: 480px) { #pageTitle { font-size: 16px; } .header-right { font-size: 11px; } .stat-info h3 { font-size: 18px; } .rt-card p { font-size: 20px; } .keuangan-summary { grid-template-columns: 1fr; } .kelompok-buttons { grid-template-columns: 1fr 1fr; } .btn-kelompok { font-size: 11px; padding: 8px 4px; } .btn-kelompok i { font-size: 16px; } .summary-card p { font-size: 16px; } .btn-filter-keuangan { font-size: 11px; padding: 8px 10px; } .btn-filter-keuangan i { font-size: 12px; } .data-table th, .data-table td { padding: 6px; font-size: 11px; } .btn-stok { font-size: 12px; padding: 8px 10px; } .btn-stok i { font-size: 12px; } .stok-badge { font-size: 10px; padding: 1px 6px; } .btn-checkout, .btn-finish-refund { font-size: 15px; } .sidebar { width: 220px; left: -220px; } .sidebar.show { left: 0; } .sidebar .logo h2 { font-size: 18px; } .sidebar .logo i { font-size: 24px; } .deposit-section { padding: 10px; margin: 10px 0; } .btn-deposit, .btn-deposit-cancel { padding: 12px; font-size: 13px; } .btn-deposit i, .btn-deposit-cancel i { font-size: 14px; } .deposit-search-results { max-height: 200px; } .deposit-customer-info { padding: 8px; } .deposit-customer-name { font-size: 12px; } .deposit-customer-balance { font-size: 12px; } .btn-stok-selector { padding: 12px; font-size: 13px; } .tab-stok-btn { padding: 12px; font-size: 13px; } .tab-stok-btn i { font-size: 14px; } .logo-image { width: 45px; height: 45px; } .nav-item { padding: 12px 15px; } .nav-item i { font-size: 16px; } .search-results, .search-results-refund { max-height: 250px; } .cart-items, .refund-items-box { max-height: 200px; } .refund-transaction-list { max-height: 250px; } }
 

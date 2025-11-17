@@ -1,29 +1,31 @@
 let barangData = [];
 let transaksiData = [];
 let pengeluaranData = [];
+let depositData = [];
 let currentKeuanganFilter = 'semua';
 let currentStokSource = 'BM1';
-let depositData = [];
+let isDataLoaded = false; // Flag untuk track apakah data sudah di-load
 
 function showLoading(show) {
   let loader = document.getElementById('globalLoader');
   if (!loader && show) {
     loader = document.createElement('div');
     loader.id = 'globalLoader';
-    loader.innerHTML = '<div class="loader-spinner"></div><p>Memuat data...</p>';
-    loader.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;color:#fff;';
+    loader.innerHTML = '<div class="progress-bar"></div>';
+    loader.style.cssText = 'position:fixed;top:0;left:0;right:0;height:3px;background:transparent;z-index:9999;overflow:hidden;';
     document.body.appendChild(loader);
   }  
   if (loader) {
-    loader.style.display = show ? 'flex' : 'none';
+    loader.style.display = show ? 'block' : 'none';
   }
 }
 
-async function loadInitialData() {
+// Fungsi tunggal untuk load semua data
+async function loadAllData() {
   try {
     if (!isOnline()) {
       alert('❌ Tidak ada koneksi internet. Aplikasi memerlukan koneksi untuk bekerja.');
-      return;
+      return false;
     }
     
     showLoading(true);
@@ -40,83 +42,43 @@ async function loadInitialData() {
     pengeluaranData = pengeluaran;
     depositData = deposit;
     
+    isDataLoaded = true;
+    return true;
+    
   } catch (error) {
     alert('❌ Gagal memuat data dari server. Silakan cek koneksi internet dan refresh halaman.');
+    return false;
   } finally {
     showLoading(false);
   }
 }
 
-function initNavigation() {
-  const navItems = document.querySelectorAll('.nav-item');
-  const pages = document.querySelectorAll('.page');
-  const sidebar = document.querySelector('.sidebar');
-  const btnMenu = document.getElementById('btnMenu');
-  if (!sidebar || !btnMenu) return;
-  navItems.forEach(item => {
-    item.addEventListener('click', (e) => {
-      e.preventDefault();
-      const targetPage = item.dataset.page;      
-      if (window.realtimeInterval && targetPage !== 'realtime-diagram') {
-        clearInterval(window.realtimeInterval);
-        window.realtimeInterval = null;
-      }     
-      navItems.forEach(nav => nav.classList.remove('active'));
-      pages.forEach(page => page.classList.remove('active'));     
-      item.classList.add('active');
-      const targetElement = document.getElementById(targetPage);
-      if (targetElement) {
-        targetElement.classList.add('active');
-      }      
-      const pageTitleEl = document.getElementById('pageTitle');
-      if (pageTitleEl) {
-        const spanText = item.querySelector('span');
-        if (spanText) {
-          pageTitleEl.textContent = spanText.textContent;
-        }
-      }      
-      loadPageData(targetPage);      
-      if (window.innerWidth <= 768) {
-        sidebar.classList.remove('show');
-      }
+// Fungsi untuk refresh data (optional, jika perlu update data terbaru)
+async function refreshData() {
+  if (!isOnline()) {
+    alert('⚠️ Mode Offline. Data mungkin tidak terbaru.');
+    return false;
+  }
+  
+  return await loadAllData();
+}
+
+// Fungsi untuk load page - TIDAK load data lagi, hanya render
+function loadPageData(page) {
+  // Pastikan data sudah di-load dulu
+  if (!isDataLoaded) {
+    console.warn('Data belum di-load, memanggil loadAllData dulu');
+    loadAllData().then(() => {
+      renderPage(page);
     });
-  });
-  btnMenu.addEventListener('click', function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    sidebar.classList.toggle('show');
-  });
-  document.addEventListener('click', function(e) {
-    if (window.innerWidth > 768) return;
-    if (!sidebar.classList.contains('show')) return;   
-    const isClickInsideSidebar = sidebar.contains(e.target);
-    const isClickOnMenuButton = btnMenu.contains(e.target);
-    if (!isClickInsideSidebar && !isClickOnMenuButton) {
-      sidebar.classList.remove('show');
-    }
-  });
+    return;
+  }
+  
+  renderPage(page);
 }
 
-async function loadPageData(page) {
-  try {
-    showLoading(true);    
-    if (isOnline()) {
-      const [barang, transaksi, pengeluaran] = await Promise.all([
-        loadBarangData(),
-        loadTransaksiData(),
-        loadPengeluaranData()
-      ]);      
-      barangData = barang;
-      transaksiData = transaksi || [];
-      pengeluaranData = pengeluaran;
-    } else {
-      alert('⚠️ Mode Offline. Data mungkin tidak terbaru.');
-    }    
-  } catch (error) {
-    alert('⚠️ Gagal memuat data terbaru.');
-  } finally {
-    showLoading(false);
-  }
+// Fungsi terpisah untuk render page
+function renderPage(page) {
   switch(page) {
     case 'dashboard':
       updateDashboard();
@@ -147,6 +109,60 @@ async function loadPageData(page) {
       renderPengeluaranTables();
       break;
   }
+}
+
+function initNavigation() {
+  const navItems = document.querySelectorAll('.nav-item');
+  const pages = document.querySelectorAll('.page');
+  const sidebar = document.querySelector('.sidebar');
+  const btnMenu = document.getElementById('btnMenu');
+  if (!sidebar || !btnMenu) return;
+  
+  navItems.forEach(item => {
+    item.addEventListener('click', (e) => {
+      e.preventDefault();
+      const targetPage = item.dataset.page;      
+      if (window.realtimeInterval && targetPage !== 'realtime-diagram') {
+        clearInterval(window.realtimeInterval);
+        window.realtimeInterval = null;
+      }     
+      navItems.forEach(nav => nav.classList.remove('active'));
+      pages.forEach(page => page.classList.remove('active'));     
+      item.classList.add('active');
+      const targetElement = document.getElementById(targetPage);
+      if (targetElement) {
+        targetElement.classList.add('active');
+      }      
+      const pageTitleEl = document.getElementById('pageTitle');
+      if (pageTitleEl) {
+        const spanText = item.querySelector('span');
+        if (spanText) {
+          pageTitleEl.textContent = spanText.textContent;
+        }
+      }      
+      loadPageData(targetPage); // Hanya render, tidak load data lagi
+      
+      if (window.innerWidth <= 768) {
+        sidebar.classList.remove('show');
+      }
+    });
+  });
+  
+  btnMenu.addEventListener('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    sidebar.classList.toggle('show');
+  });
+  
+  document.addEventListener('click', function(e) {
+    if (window.innerWidth > 768) return;
+    if (!sidebar.classList.contains('show')) return;   
+    const isClickInsideSidebar = sidebar.contains(e.target);
+    const isClickOnMenuButton = btnMenu.contains(e.target);
+    if (!isClickInsideSidebar && !isClickOnMenuButton) {
+      sidebar.classList.remove('show');
+    }
+  });
 }
 
 function updateDashboard() {
@@ -306,18 +322,37 @@ function initStokManagement() {
   if (idInput) {
     idInput.addEventListener('input', () => {
       if (stokMode === 'add') return;      
-      const id = idInput.value;
+      const id = idInput.value.trim();
+      
+      // Cari barang dengan exact match
       const barang = barangData.find(b => b.id === id);
+      
       if (barang) {
+        // Barang ditemukan - isi form
         document.getElementById('stokIsNew').value = 'false';
         document.getElementById('idStokAlert').style.display = 'block';
         document.getElementById('stokButtonText').textContent = 'Update Stok & Harga';
         fillStokForm(barang);
       } else {
+        // Barang tidak ditemukan - reset form kecuali ID yang sedang diketik
         document.getElementById('stokIsNew').value = 'true';
         document.getElementById('idStokAlert').style.display = 'none';
         document.getElementById('stokButtonText').textContent = 'Tambah Barang';
         document.getElementById('stokIndex').value = '';
+        
+        // Reset field lain tapi pertahankan ID yang sedang diketik
+        document.getElementById('stokNamaBarang').value = '';
+        document.getElementById('stokHargaModal').value = 0;
+        document.getElementById('stokHargaKelompok').value = 0;
+        document.getElementById('stokHargaTurunan').value = 0;
+        document.getElementById('stokJumlahKelompok').value = 0;
+        document.getElementById('stokJumlahTurunan').value = 0;
+        
+        // Reset ke satuan default
+        const buttons = document.querySelectorAll('.btn-kelompok');
+        buttons.forEach(b => b.classList.remove('active'));
+        const defaultBtn = document.querySelector('.btn-kelompok[data-kelompok="satuan"]');
+        if (defaultBtn) defaultBtn.click();
       }
     });
   }  
@@ -568,8 +603,9 @@ async function handleStokFormSubmit(e) {
   let newBarangData;
   let isStokAddition = false;
   let oldTotalStok = 0;  
+  
   if (stokMode === 'add') {
-    const existingBarang = barangData.find(b => b.id === idBarang);
+    const existingBarang = barangData.find(b => b.id === idBarang && b.jenisTransaksi === 'Penambahan Barang Baru');
     if (!existingBarang) {
       alert('Barang tidak ditemukan!');
       return;
@@ -582,51 +618,14 @@ async function handleStokFormSubmit(e) {
       alert('Modal dan Harga Jual wajib diisi untuk penambahan stok!');
       return;
     }    
-    let oldStokKelompok, oldStokTurunan;
     
-    if (source === 'BM1') {
-      oldStokKelompok = existingBarang.stokKelompokBM1 || 0;
-      oldStokTurunan = existingBarang.stokTurunanBM1 || 0;
-    } else {
-      oldStokKelompok = existingBarang.stokKelompokBM2 || 0;
-      oldStokTurunan = existingBarang.stokTurunanBM2 || 0;
-    }    
-    oldTotalStok = (oldStokKelompok * banyakItemPerTurunan) + oldStokTurunan;    
-    const newStokKelompok = oldStokKelompok + stokKelompokInput;
-    const newStokTurunan = oldStokTurunan + stokTurunanInput;
+    // Hitung total stok lama dari SEMUA BATCH (utama + history sebelumnya)
+    oldTotalStok = calculateTotalStokForBarang(idBarang, barangData, source);
+    
     const totalStokTambah = (stokKelompokInput * banyakItemPerTurunan) + stokTurunanInput;
-    const newTotalStok = oldTotalStok + totalStokTambah;    
-    if (source === 'BM1') {
-      existingBarang.stokKelompokBM1 = newStokKelompok;
-      existingBarang.stokTurunanBM1 = newStokTurunan;
-    } else {
-      existingBarang.stokKelompokBM2 = newStokKelompok;
-      existingBarang.stokTurunanBM2 = newStokTurunan;
-    }    
-    const updatedMainBarang = {
-      tanggal: existingBarang.tanggal || getTodayWIB(),
-      id: existingBarang.id,
-      nama: existingBarang.nama,
-      jenisKelompok: existingBarang.jenisKelompok,
-      banyakItemPerTurunan: existingBarang.banyakItemPerTurunan,
-      jenisTurunan: existingBarang.jenisTurunan,      
-      stokKelompokBM1: source === 'BM1' ? newStokKelompok : (existingBarang.stokKelompokBM1 || 0),
-      stokKelompokBM2: source === 'BM2' ? newStokKelompok : (existingBarang.stokKelompokBM2 || 0),      
-      stokTurunanBM1: source === 'BM1' ? newStokTurunan : (existingBarang.stokTurunanBM1 || 0),
-      stokTurunanBM2: source === 'BM2' ? newStokTurunan : (existingBarang.stokTurunanBM2 || 0),      
-      modalBarang: existingBarang.modalBarang,
-      hargaJualKelompok: existingBarang.hargaJualKelompok,
-      hargaJualTurunan: existingBarang.hargaJualTurunan,      
-      totalItem: existingBarang.totalItem || 0,
-      totalItemTerjual: existingBarang.totalItemTerjual || 0,
-      totalHargaItemTerjual: existingBarang.totalHargaItemTerjual || 0,
-      totalModal: existingBarang.totalModal || 0,
-      keuntunganMargin: existingBarang.keuntunganMargin || 0,      
-      jenisTransaksi: 'Penambahan Barang Baru',
-      alamat: '-',
-      status: 'Tambah Barang Baru',
-      catatan: ''
-    };    
+    const newTotalStok = oldTotalStok + totalStokTambah;
+    
+    // ✅ Simpan history stok baru
     const historyBarang = {
       tanggal: getTodayWIB(),
       id: idBarang,
@@ -641,7 +640,7 @@ async function handleStokFormSubmit(e) {
       modalBarang: modalBarang,
       hargaJualKelompok: hargaJualKelompok,
       hargaJualTurunan: hargaJualTurunan,      
-      totalItem: 0,
+      totalItem: totalStokTambah, // Hanya stok batch ini
       totalItemTerjual: 0,
       totalHargaItemTerjual: 0,
       totalModal: 0,
@@ -650,27 +649,57 @@ async function handleStokFormSubmit(e) {
       alamat: source === 'BM1' ? 'UD.BM 1' : 'UD.BM 2',
       status: 'Tambah Stok',
       catatan: `Stok Lama: ${oldTotalStok} → Ditambah: +${totalStokTambah} → Stok Baru: ${newTotalStok} ${getSatuanTurunanLabel(jenisKelompok)} | Modal: ${formatRupiah(modalBarang)}, Harga Jual: ${formatRupiah(hargaJualKelompok)}${hargaJualTurunan > 0 ? ', Turunan: ' + formatRupiah(hargaJualTurunan) : ''}`
-    };    
+    };
+    
+    // ✅ CRITICAL FIX: Update main HANYA Total Item, JANGAN ubah stok kelompok
+    const updatedMainBarang = {
+      tanggal: existingBarang.tanggal || getTodayWIB(),
+      id: existingBarang.id,
+      nama: existingBarang.nama,
+      jenisKelompok: existingBarang.jenisKelompok,
+      banyakItemPerTurunan: existingBarang.banyakItemPerTurunan,
+      jenisTurunan: existingBarang.jenisTurunan,
+      
+      // ✅ TETAP gunakan stok LAMA (jangan update dari input)
+      stokKelompokBM1: existingBarang.stokKelompokBM1 || 0,
+      stokKelompokBM2: existingBarang.stokKelompokBM2 || 0,
+      stokTurunanBM1: existingBarang.stokTurunanBM1 || 0,
+      stokTurunanBM2: existingBarang.stokTurunanBM2 || 0,
+      
+      // ✅ TETAP gunakan harga LAMA
+      modalBarang: existingBarang.modalBarang,
+      hargaJualKelompok: existingBarang.hargaJualKelompok,
+      hargaJualTurunan: existingBarang.hargaJualTurunan,
+      
+      // ✅ UPDATE hanya Total Item (agregat semua batch)
+      totalItem: newTotalStok,
+      
+      // ✅ TETAP gunakan statistik penjualan yang sudah ada
+      totalItemTerjual: existingBarang.totalItemTerjual || 0,
+      totalHargaItemTerjual: existingBarang.totalHargaItemTerjual || 0,
+      totalModal: existingBarang.totalModal || 0,
+      keuntunganMargin: existingBarang.keuntunganMargin || 0,
+      
+      jenisTransaksi: 'Penambahan Barang Baru',
+      alamat: existingBarang.alamat || '-',
+      status: existingBarang.status || 'Tambah Barang Baru',
+      catatan: existingBarang.catatan || ''
+    };
+    
     isStokAddition = true;    
     try {
       showLoading(true);      
+      
+      // ✅ Kirim 2 record: update main (hanya Total Item) + insert history
       await saveBarangData([updatedMainBarang, historyBarang]);      
+      
       alert(`✅ Stok berhasil ditambahkan!\n\nStok Lama: ${oldTotalStok}\nDitambah: +${totalStokTambah}\nStok Baru: ${newTotalStok}`);      
+      
       const [barang] = await Promise.all([loadBarangData()]);
       barangData = barang;      
       renderStokTable();
       resetStokForm();
       updateDashboard();      
-      setTimeout(() => {
-        const rows = document.querySelectorAll(`#stokTableBody tr`);
-        rows.forEach(row => {
-          const idCell = row.cells[0];
-          if (idCell && idCell.textContent === idBarang) {
-            row.classList.add('stok-updated-highlight');
-            row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
-        });
-      }, 500);      
     } catch (error) {
       alert('❌ Gagal menyimpan data. Silakan cek koneksi dan coba lagi.');
     } finally {
@@ -678,6 +707,10 @@ async function handleStokFormSubmit(e) {
     }    
     return;
   }  
+  
+  // ========================================
+  // MODE TAMBAH BARANG BARU atau UPDATE
+  // ========================================
   if (isNew) {
     if (barangData.some(b => b.id === idBarang)) {
       alert('ID Barang sudah ada. Gunakan tombol update atau reset form.');
@@ -686,7 +719,10 @@ async function handleStokFormSubmit(e) {
     if (modalBarang === 0) {
       alert('Modal barang wajib diisi untuk perhitungan laba!');
       return;
-    }    
+    }
+    
+    const totalStokBaru = (stokKelompokInput * banyakItemPerTurunan) + stokTurunanInput;
+    
     newBarangData = {
       id: idBarang,
       nama: document.getElementById('stokNamaBarang').value,
@@ -699,7 +735,8 @@ async function handleStokFormSubmit(e) {
       stokTurunanBM2: source === 'BM2' ? stokTurunanInput : 0,      
       modalBarang: modalBarang,
       hargaJualKelompok: hargaJualKelompok,
-      hargaJualTurunan: hargaJualTurunan,      
+      hargaJualTurunan: hargaJualTurunan,
+      totalItem: totalStokBaru,      
       tanggal: getTodayWIB(),      
       jenisTransaksi: 'Penambahan Barang Baru',
       alamat: '-',
@@ -708,12 +745,16 @@ async function handleStokFormSubmit(e) {
     };    
     barangData.push(newBarangData);    
   } else {
+    // MODE UPDATE BARANG UTAMA
     const existingBarangIndex = barangData.findIndex(b => b.id === idBarang);
     if (existingBarangIndex === -1) {
       alert('Barang tidak ditemukan.');
       return;
     }    
-    const existingBarang = barangData[existingBarangIndex];    
+    const existingBarang = barangData[existingBarangIndex];
+    
+    const totalStokUpdate = (stokKelompokInput * banyakItemPerTurunan) + stokTurunanInput;
+    
     newBarangData = {
       ...existingBarang,
       nama: document.getElementById('stokNamaBarang').value,
@@ -722,7 +763,8 @@ async function handleStokFormSubmit(e) {
       jenisTurunan: getSatuanTurunanLabel(jenisKelompok).toLowerCase(),      
       modalBarang: modalBarang,
       hargaJualKelompok: hargaJualKelompok,
-      hargaJualTurunan: hargaJualTurunan,      
+      hargaJualTurunan: hargaJualTurunan,
+      totalItem: totalStokUpdate,      
       tanggal: existingBarang.tanggal || getTodayWIB(),      
       jenisTransaksi: existingBarang.jenisTransaksi || 'Penambahan Barang Baru',
       alamat: existingBarang.alamat || '-',
@@ -758,15 +800,16 @@ async function handleStokFormSubmit(e) {
   }
 }
 
+// PERBAIKAN: renderStokTable - Tampilkan stok lama dan baru terpisah
 function renderStokTable() {
   const tbody = document.getElementById('stokTableBody');  
-  if (!tbody) {
-    return;
-  }  
+  if (!tbody) return;  
   if (barangData.length === 0) {
     tbody.innerHTML = '<tr><td colspan="11" class="empty-message">Belum ada data barang</td></tr>';
     return;
   }  
+  
+  // Filter barang utama
   const mainBarangOnly = barangData.filter(b => {
     const jenis = b.jenisTransaksi || 'Penambahan Barang Baru';
     return jenis === 'Penambahan Barang Baru';
@@ -776,29 +819,36 @@ function renderStokTable() {
     tbody.innerHTML = '<tr><td colspan="11" class="empty-message">Belum ada data barang utama</td></tr>';
     return;
   }  
-  tbody.innerHTML = mainBarangOnly.map((item) => {
+  
+  let html = '';
+  
+  mainBarangOnly.forEach((item) => {
     const kelompokLabel = getKelompokLabel(item.jenisKelompok || 'Satuan');
     const turunanLabel = item.jenisTurunan || getSatuanTurunanLabel(item.jenisKelompok || 'Satuan');
     const banyakItem = item.banyakItemPerTurunan || 1;
     
-    let stokKelompok, stokTurunan;
+    let stokKelompokMain, stokTurunanMain;
     
     if (currentStokSource === 'BM1') {
-      stokKelompok = item.stokKelompokBM1 || 0;
-      stokTurunan = item.stokTurunanBM1 || 0;
+      stokKelompokMain = item.stokKelompokBM1 || 0;
+      stokTurunanMain = item.stokTurunanBM1 || 0;
     } else {
-      stokKelompok = item.stokKelompokBM2 || 0;
-      stokTurunan = item.stokTurunanBM2 || 0;
+      stokKelompokMain = item.stokKelompokBM2 || 0;
+      stokTurunanMain = item.stokTurunanBM2 || 0;
     }    
-    const totalStok = (stokKelompok * banyakItem) + stokTurunan;    
+    
+    const totalStokMain = (stokKelompokMain * banyakItem) + stokTurunanMain;
+    
+    // ✅ TAMPILKAN ROW BARANG UTAMA
     let stokDisplay;
     if (item.jenisKelompok && item.jenisKelompok.toLowerCase() !== 'satuan') {
-      stokDisplay = `${stokKelompok} ${kelompokLabel}`;
+      stokDisplay = `${stokKelompokMain} ${kelompokLabel}`;
     } else {
-      stokDisplay = `${totalStok} ${turunanLabel}`;
+      stokDisplay = `${totalStokMain} ${turunanLabel}`;
     }    
-    return `<tr>
-      <td>${item.id}</td>
+    
+    html += `<tr class="main-barang-row">
+      <td rowspan="1"><strong>${item.id}</strong></td>
       <td>${item.nama}</td>
       <td><span class="kelompok-badge">${kelompokLabel}</span></td>
       <td>${item.banyakItemPerTurunan}</td>
@@ -806,8 +856,8 @@ function renderStokTable() {
       <td>${turunanLabel}</td>
       <td>${formatRupiah(item.hargaJualTurunan)}</td>
       <td>${stokDisplay}</td>
-      <td>${stokTurunan} ${turunanLabel}</td>
-      <td><strong>${totalStok} ${turunanLabel}</strong></td>
+      <td>${stokTurunanMain} ${turunanLabel}</td>
+      <td><strong>${totalStokMain} ${turunanLabel}</strong></td>
       <td>
         <button class="btn-edit" onclick="editBarangStok('${item.id}')">
           <i class="fas fa-edit"></i> Edit
@@ -817,7 +867,63 @@ function renderStokTable() {
         </button>
       </td>
     </tr>`;
-  }).join('');
+    
+    // ✅ CARI HISTORY STOK LAMA untuk barang ini
+    const stokLamaHistory = barangData.filter(b => 
+      b.id === item.id && 
+      b.jenisTransaksi === 'Penambahan Stok Lama'
+    ).sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal)); // Urutkan dari lama ke baru
+    
+    if (stokLamaHistory.length > 0) {
+      html += `<tr class="section-subheader">
+        <td colspan="11" style="background: #eff6ff; font-weight: 600; padding: 8px; font-size: 12px;">
+          <i class="fas fa-layer-group"></i> Riwayat Penambahan Stok
+        </td>
+      </tr>`;
+      
+      stokLamaHistory.forEach((history, idx) => {
+        let stokKelompokHistory, stokTurunanHistory;
+        
+        if (currentStokSource === 'BM1') {
+          stokKelompokHistory = history.stokKelompokBM1 || 0;
+          stokTurunanHistory = history.stokTurunanBM1 || 0;
+        } else {
+          stokKelompokHistory = history.stokKelompokBM2 || 0;
+          stokTurunanHistory = history.stokTurunanBM2 || 0;
+        }
+        
+        const totalStokHistory = (stokKelompokHistory * banyakItem) + stokTurunanHistory;
+        
+        let stokDisplayHistory;
+        if (item.jenisKelompok && item.jenisKelompok.toLowerCase() !== 'satuan') {
+          stokDisplayHistory = `${stokKelompokHistory} ${kelompokLabel}`;
+        } else {
+          stokDisplayHistory = `${totalStokHistory} ${turunanLabel}`;
+        }
+        
+        html += `<tr class="stok-lama-row">
+          <td style="padding-left: 30px; font-size: 11px; color: #64748b;">
+            <i class="fas fa-arrow-right"></i> ${formatDate(history.tanggal)}
+          </td>
+          <td style="font-size: 11px; color: #64748b;">Stok Tambahan #${idx + 1}</td>
+          <td><span class="kelompok-badge" style="background: #f59e0b;">${kelompokLabel}</span></td>
+          <td>${history.banyakItemPerTurunan}</td>
+          <td>${formatRupiah(history.hargaJualKelompok)}</td>
+          <td>${turunanLabel}</td>
+          <td>${formatRupiah(history.hargaJualTurunan)}</td>
+          <td>${stokDisplayHistory}</td>
+          <td>${stokTurunanHistory} ${turunanLabel}</td>
+          <td><strong>${totalStokHistory} ${turunanLabel}</strong></td>
+          <td style="font-size: 11px; color: #64748b;">${history.catatan || '-'}</td>
+        </tr>`;
+      });
+      
+      // Separator
+      html += `<tr style="height: 10px;"><td colspan="11" style="background: #f8fafc;"></td></tr>`;
+    }
+  });
+  
+  tbody.innerHTML = html;
 }
 
 window.viewCustomerDepositDetail = async function(customerName) {
@@ -2113,9 +2219,12 @@ window.deletePengeluaranItem = async function(waktu, biaya) {
 
 document.addEventListener('DOMContentLoaded', async () => {
   try {
-    await loadInitialData();
+    // Load data HANYA SEKALI di awal
+    await loadAllData();
   } catch (error) {
+    console.error('Error loading initial data:', error);
   }  
+  
   initNavigation();
   initStokManagement();
   initKeuangan();
@@ -2123,16 +2232,21 @@ document.addEventListener('DOMContentLoaded', async () => {
   initPengeluaranTabs();
   updateDateTime();
   setInterval(updateDateTime, 1000);
+  
   const activeNavItem = document.querySelector('.nav-item.active');
   const initialPage = activeNavItem ? activeNavItem.dataset.page : 'dashboard';  
+  
   setTimeout(() => {
-    loadPageData(initialPage);
+    loadPageData(initialPage); // Hanya render, data sudah di-load
   }, 100);
+  
+  // Event listener untuk reload data manual (jika diperlukan)
   window.addEventListener('dataReloaded', async () => {
+    await refreshData(); // Refresh data dari server
     const currentNavItem = document.querySelector('.nav-item.active');
     const currentPage = currentNavItem ? currentNavItem.dataset.page : null;
     if (currentPage) {
-      await loadPageData(currentPage);
+      renderPage(currentPage); // Render ulang page dengan data baru
     }
   });
 });
