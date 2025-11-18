@@ -208,6 +208,32 @@ function calculateTotalStokForBarang(idBarang, barangDataArray, source = 'BM1') 
   return totalStok;
 }
 
+async function updateDetailTransaksi(idTrans, updatedItems) {
+    if (!idTrans || !Array.isArray(updatedItems)) {
+      throw new Error("ID Transaksi atau items tidak valid");
+    }
+    
+    const validatedItems = updatedItems.map(item => ({
+      idTrans: idTrans,
+      tanggal: item.tanggal || getTodayWIB(),
+      id: item.id,
+      nama: item.nama,
+      harga: parseFloat(item.harga) || 0,
+      qty: parseInt(item.qty) || 0, // ← QTY BARU
+      typeBarang: item.typeBarang || (item.isKotak ? 'kelompok' : 'turunan'),
+      hargaModalUnit: parseFloat(item.hargaModalUnit) || 0,
+      qtyOriginal: parseInt(item.qtyOriginal) || item.qty,
+      isRefunded: item.isRefunded || false,
+      isTukar: item.isTukar || false,
+      stokSource: item.stokSource || 'BM1'
+    }));
+    
+    return await sendToSheet('UPDATE_DETAIL_TRANSAKSI', { 
+      idTrans: idTrans, 
+      items: validatedItems 
+    });
+}
+
 function isKelompokFixed(jenisKelompok) {
     const fixedTypes = ['kodi', 'meter', 'kilogram'];
     return fixedTypes.includes(jenisKelompok.toLowerCase());
