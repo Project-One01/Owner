@@ -281,6 +281,36 @@ td[colspan] { text-align: center; padding: 20px; }
 .status-lunas { color: #10b981; }
 .status-belum-lunas, .status-default { color: #ef4444; }
 .status-keluar { color: #000000; }
+.status-belum-lunas {
+  background: #fef3c7;
+  color: #92400e;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-weight: 600;
+  border: 1px solid #f59e0b;
+  transition: all 0.2s;
+}
+
+.status-belum-lunas:hover {
+  background: #fde68a;
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+}
+.progress-bar {
+  width: 100%;
+  height: 50%;
+  background: linear-gradient(9deg, #3b82f6, #2563eb, #1d4ed8);
+  animation: progressBar 1.5s ease-in-out infinite;
+}
+
+@keyframes progressBar {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
 .status-diubah { color: #f59e0b; }
 .status-refund-exchange { color: var(--secondary-color); }
 .profit-positive { color: #10b981; }
@@ -505,21 +535,7 @@ td[colspan] { text-align: center; padding: 20px; }
   .stat-card { 
     padding: 15px; 
   }
-  .progress-bar {
-  width: 100%;
-  height: 50%;
-  background: linear-gradient(9deg, #3b82f6, #2563eb, #1d4ed8);
-  animation: progressBar 1.5s ease-in-out infinite;
-}
-
-@keyframes progressBar {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
+  
   .stat-icon { 
     width: 45px; 
     height: 45px; 
