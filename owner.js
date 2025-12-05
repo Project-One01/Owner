@@ -7,6 +7,18 @@ let currentStokSource = 'BM1';
 let isDataLoaded = false;
 let stokMode = 'new';
 let salesChart = null;
+let catatanData = [];
+let currentEditingCatatanId = null;
+
+// ==================== PAGINATION STATE ====================
+const paginationState = {
+  recentTransactions: { currentPage: 1, itemsPerPage: 5 },
+  stokTable: { currentPage: 1, itemsPerPage: 10 },
+  keuanganTable: { currentPage: 1, itemsPerPage: 20 },
+  bangunanTable: { currentPage: 1, itemsPerPage: 10 },
+  takTerdugaTable: { currentPage: 1, itemsPerPage: 10 },
+  gajiTable: { currentPage: 1, itemsPerPage: 10 }
+};
 
 function showLoading(show) {
   let loader = document.getElementById('globalLoader');
@@ -98,6 +110,9 @@ function renderPage(page) {
     case 'pengeluaran':
       renderPengeluaranTables();
       break;
+    case 'catatan':
+      renderCatatanList();
+      break;
   }
 }
 
@@ -183,30 +198,264 @@ function updateDashboard() {
   renderLowStockAlert(lowStock);
 }
 
+// ==================== PAGINATION UTILITIES ====================
+function createPaginationHTML(tableId, totalItems, currentPage, itemsPerPage) {
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  
+  if (totalPages <= 1) return '';
+  
+  let html = '<div class="pagination-container">';
+  html += '<div class="pagination">';
+  
+  // Previous button
+  html += `<button class="pagination-btn ${currentPage === 1 ? 'disabled' : ''}" 
+           onclick="changePage('${tableId}', ${currentPage - 1})" 
+           ${currentPage === 1 ? 'disabled' : ''}>
+           <i class="fas fa-chevron-left"></i>
+           </button>`;
+  
+  // Page numbers
+  const maxVisiblePages = 5;
+  let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+  let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+  
+  if (endPage - startPage < maxVisiblePages - 1) {
+    startPage = Math.max(1, endPage - maxVisiblePages + 1);
+  }
+  
+  if (startPage > 1) {
+    html += `<button class="pagination-btn" onclick="changePage('${tableId}', 1)">1</button>`;
+    if (startPage > 2) {
+      html += '<span class="pagination-ellipsis">...</span>';
+    }
+  }
+  
+  for (let i = startPage; i <= endPage; i++) {
+    html += `<button class="pagination-btn ${i === currentPage ? 'active' : ''}" 
+             onclick="changePage('${tableId}', ${i})">${i}</button>`;
+  }
+  
+  if (endPage < totalPages) {
+    if (endPage < totalPages - 1) {
+      html += '<span class="pagination-ellipsis">...</span>';
+    }
+    html += `<button class="pagination-btn" onclick="changePage('${tableId}', ${totalPages})">${totalPages}</button>`;
+  }
+  
+  // Next button
+  html += `<button class="pagination-btn ${currentPage === totalPages ? 'disabled' : ''}" 
+           onclick="changePage('${tableId}', ${currentPage + 1})" 
+           ${currentPage === totalPages ? 'disabled' : ''}>
+           <i class="fas fa-chevron-right"></i>
+           </button>`;
+  
+  html += '</div>';
+  html += `<div class="pagination-info">Halaman ${currentPage} dari ${totalPages} (Total: ${totalItems} item)</div>`;
+  html += '</div>';
+  
+  return html;
+}
+
+window.changePage = function(tableId, newPage) {
+  if (!paginationState[tableId]) return;
+  
+  const totalItems = getTotalItemsForTable(tableId);
+  const totalPages = Math.ceil(totalItems / paginationState[tableId].itemsPerPage);
+  
+  // ✅ Validasi halaman
+  if (newPage < 1 || newPage > totalPages) return;
+  
+  paginationState[tableId].currentPage = newPage;
+  
+  switch(tableId) {
+    case 'recentTransactions':
+      renderRecentTransactions();
+      break;
+    case 'stokTable':
+      renderStokTable();
+      break;
+    case 'keuanganTable':
+      renderKeuanganTable();
+      break;
+    case 'bangunanTable':
+      renderBangunanTable();
+      break;
+    case 'takTerdugaTable':
+      renderTakTerdugaTable();
+      break;
+    case 'gajiTable':
+      renderGajiTable();
+      break;
+  }
+  
+  // ✅ Smooth scroll ke bagian atas table
+  setTimeout(() => {
+    let section;
+    
+    if (tableId === 'recentTransactions') {
+      section = document.getElementById('recentTransList');
+    } else if (tableId === 'stokTable') {
+      section = document.querySelector('.table-list-section');
+    } else if (tableId === 'keuanganTable') {
+      section = document.querySelector('#keuangan .table-container');
+    } else {
+      section = document.querySelector(`#${tableId}`);
+      if (!section) {
+        section = document.querySelector(`.pagination-wrapper#${tableId}`);
+        if (section) section = section.closest('.tab-content');
+      }
+    }
+    
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, 100);
+};
+
+function getTotalItemsForTable(tableId) {
+  switch(tableId) {
+    case 'recentTransactions':
+      return transaksiData.filter(t => t.jenis === 'Pemasukan' && !t.tipeProses).length;
+      
+    case 'stokTable':
+      return barangData.filter(b => {
+        const jenis = b.jenisTransaksi || 'Penambahan Barang Baru';
+        return jenis === 'Penambahan Barang Baru';
+      }).length;
+      
+    case 'keuanganTable':
+      // ✅ HITUNG BERDASARKAN FILTER AKTIF
+      const bulan = document.getElementById('filterBulan')?.value;
+      const tahun = document.getElementById('filterTahun')?.value;
+      
+      if (!bulan || !tahun) return 0;
+      
+      let allMonthData = [];
+      
+      const transaksiMonth = transaksiData.filter(t => {
+        const date = parseToWIBDate(t.tanggal);
+        return String(date.getMonth() + 1).padStart(2, '0') === bulan && 
+               date.getFullYear() === parseInt(tahun);
+      });
+      
+      allMonthData = allMonthData.concat(transaksiMonth);
+      
+      const pengeluaranMonth = pengeluaranData.filter(p => {
+        const date = new Date(p.waktu);
+        const wibTime = new Date(date.toLocaleString('en-US', { timeZone: 'Asia/Jakarta' }));
+        return String(wibTime.getMonth() + 1).padStart(2, '0') === bulan && 
+               wibTime.getFullYear() === parseInt(tahun);
+      });
+      
+      allMonthData = allMonthData.concat(pengeluaranMonth);
+      
+      // Filter sesuai tab aktif
+      if (currentKeuanganFilter === 'transaksi') {
+        return allMonthData.filter(t => 
+          t.jenis === 'Pemasukan' || 
+          t.tipeProses === 'refund' || 
+          t.tipeProses === 'exchange'
+        ).length;
+      } else if (currentKeuanganFilter === 'pengeluaran') {
+        return allMonthData.filter(t => 
+          t.jenis === 'Pengeluaran' && 
+          (t.tipeProses && t.tipeProses.startsWith('pengeluaran-'))
+        ).length;
+      } else if (currentKeuanganFilter === 'barang') {
+        return barangData.filter(b => {
+          const date = parseToWIBDate(b.tanggal);
+          const matchMonth = String(date.getMonth() + 1).padStart(2, '0') === bulan && 
+                             date.getFullYear() === parseInt(tahun);
+          
+          const hasJenisTransaksi = b.jenisTransaksi && 
+            (b.jenisTransaksi === 'Penambahan Barang Baru' || 
+             b.jenisTransaksi === 'Penambahan Stok Lama');
+          
+          if (b.jenisTransaksi === 'Penambahan Stok Lama') {
+            const banyakItem = b.banyakItemPerTurunan || 1;
+            const stokKelompok = (b.stokKelompokBM1 || 0) + (b.stokKelompokBM2 || 0);
+            const stokTurunan = (b.stokTurunanBM1 || 0) + (b.stokTurunanBM2 || 0);
+            const totalStok = (stokKelompok * banyakItem) + stokTurunan;
+            
+            if (totalStok === 0) {
+              return false;
+            }
+          }
+          
+          return matchMonth && hasJenisTransaksi;
+        }).length;
+      } else {
+        // Filter 'semua'
+        return allMonthData.length;
+      }
+      
+    case 'bangunanTable':
+      const customerMap = {};
+      depositData.forEach(item => {
+        if (!customerMap[item.nama]) {
+          customerMap[item.nama] = [];
+        }
+        customerMap[item.nama].push(item);
+      });
+      return Object.keys(customerMap).length;
+      
+    case 'takTerdugaTable':
+      return pengeluaranData.filter(p => 
+        p.jenis !== 'Simpan Uang Bangunan' && p.jenis !== 'Gaji Karyawan'
+      ).length;
+      
+    case 'gajiTable':
+      return pengeluaranData.filter(p => p.jenis === 'Gaji Karyawan').length;
+      
+    default:
+      return 0;
+  }
+}
+
+function getPaginatedData(data, tableId) {
+  const { currentPage, itemsPerPage } = paginationState[tableId];
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  return data.slice(startIndex, endIndex);
+}
+
 function renderRecentTransactions() {
   const container = document.getElementById('recentTransList');
+  if (!container) return;
+  
   const recent = transaksiData
-    .filter(t => t.jenis === 'Pemasukan' && !t.tipeProses) 
-    .slice(-5).reverse();  
+    .filter(t => t.jenis === 'Pemasukan' && !t.tipeProses)
+    .slice().reverse();
   
   if (recent.length === 0) {
     container.innerHTML = '<p class="empty-message">Belum ada transaksi</p>';
     return;
-  }  
+  }
   
-  container.innerHTML = recent.map(t => {
+  const paginatedData = getPaginatedData(recent, 'recentTransactions');
+  
+  let html = '<div class="trans-list">';
+  paginatedData.forEach(t => {
     let barangDisplay = t.barang;
     if (barangDisplay && barangDisplay.length > 30) {
       barangDisplay = barangDisplay.substring(0, 30) + '...';
-    }    
-    return `<div class="trans-item">
+    }
+    html += `<div class="trans-item">
       <div class="trans-info">
         <h4>${t.nama || 'Transaksi'}</h4>
         <p>${formatDateTime(t.waktu)} - ${barangDisplay}</p>
       </div>
       <div class="trans-amount">${formatRupiah(t.total)}</div>
     </div>`;
-  }).join('');
+  });
+  html += '</div>';
+  
+  // ✅ TAMBAHKAN PAGINATION
+  html += createPaginationHTML('recentTransactions', recent.length, 
+    paginationState.recentTransactions.currentPage, 
+    paginationState.recentTransactions.itemsPerPage);
+  
+  container.innerHTML = html;
 }
 
 function renderLowStockAlert(lowStock) {
@@ -801,7 +1050,7 @@ function renderStokTable() {
   
   let html = '';
   
-  mainBarangOnly.forEach((item) => {
+  const paginatedData = getPaginatedData(mainBarangOnly, 'stokTable'); paginatedData.forEach((item) => {
     const kelompokLabel = getKelompokLabel(item.jenisKelompok || 'Satuan');
     const turunanLabel = item.jenisTurunan || getSatuanTurunanLabel(item.jenisKelompok || 'Satuan');
     const banyakItem = item.banyakItemPerTurunan || 1;
@@ -893,6 +1142,22 @@ function renderStokTable() {
   });
   
   tbody.innerHTML = html;
+  // TAMBAHKAN INI DI AKHIR FUNGSI renderStokTable
+  // (setelah tbody.innerHTML = html;)
+  
+  // Add pagination after table
+  const tableSection = tbody.closest('.table-list-section');
+  let paginationWrapper = tableSection.querySelector('.pagination-wrapper');
+  if (!paginationWrapper) {
+    paginationWrapper = document.createElement('div');
+    paginationWrapper.className = 'pagination-wrapper';
+    paginationWrapper.id = 'stokTable';
+    tableSection.appendChild(paginationWrapper);
+  }
+  
+  paginationWrapper.innerHTML = createPaginationHTML('stokTable', mainBarangOnly.length,
+    paginationState.stokTable.currentPage,
+    paginationState.stokTable.itemsPerPage);
 }
 
 async function cleanupEmptyBatches(affectedItemIds) {
@@ -1148,6 +1413,9 @@ function updateFilterButtons() {
   
   const activeBtn = document.getElementById(activeBtnId);
   if (activeBtn) activeBtn.classList.add('active');
+  
+  // ✅ RESET HALAMAN KE 1 SAAT GANTI FILTER
+  paginationState.keuanganTable.currentPage = 1;
 }
 
 // PERBAIKAN 1: Filter barang dan mapping data yang BENAR
@@ -1157,6 +1425,7 @@ function renderKeuanganTable() {
   const tbody = document.getElementById('keuanganTableBody');
   if (!tbody) return;
   
+  // ==================== STEP 1: KUMPULKAN SEMUA DATA BULANAN ====================
   let allMonthData = [];
   let currentJenisTransaksi = null;
   
@@ -1191,6 +1460,7 @@ function renderKeuanganTable() {
   
   allMonthData = allMonthData.concat(pengeluaranMonth);
   
+  // ==================== STEP 2: HITUNG SUMMARY (DARI SEMUA DATA) ====================
   let totalPemasukan = 0;
   let totalPengeluaran = 0;
   let totalGrossProfit = 0;
@@ -1208,6 +1478,7 @@ function renderKeuanganTable() {
   
   updateKeuanganSummary(totalPemasukan, totalPengeluaran, totalGrossProfit);
   
+  // ==================== STEP 3: FILTER DATA SESUAI TAB AKTIF ====================
   let filteredForTable = [...allMonthData];
   
   if (currentKeuanganFilter === 'transaksi') {
@@ -1231,7 +1502,7 @@ function renderKeuanganTable() {
         (b.jenisTransaksi === 'Penambahan Barang Baru' || 
          b.jenisTransaksi === 'Penambahan Stok Lama');
       
-      // ✅ FILTER: Penambahan Stok Lama yang stoknya 0 tidak ditampilkan
+      // Filter: Penambahan Stok Lama yang stoknya 0 tidak ditampilkan
       if (b.jenisTransaksi === 'Penambahan Stok Lama') {
         const banyakItem = b.banyakItemPerTurunan || 1;
         const stokKelompok = (b.stokKelompokBM1 || 0) + (b.stokKelompokBM2 || 0);
@@ -1259,7 +1530,6 @@ function renderKeuanganTable() {
       const totalStokTurunan = stokTurunanBM1 + stokTurunanBM2;
       const totalStokTersedia = (totalStokKelompok * banyakItemPerTurunan) + totalStokTurunan;
       
-      // ✅ PERBAIKAN: totalItemTerjual hanya untuk Penambahan Barang Baru
       const totalItemTerjual = b.jenisTransaksi === 'Penambahan Barang Baru' ? (b.totalItemTerjual || 0) : 0;
       const totalKeseluruhan = totalStokTersedia + totalItemTerjual;
       
@@ -1316,13 +1586,34 @@ function renderKeuanganTable() {
     filteredForTable = barangMonth;
   }
   
+  // ==================== STEP 4: SORT DATA ====================
   filteredForTable.sort((a, b) => new Date(a.waktu) - new Date(b.waktu));
   
-  if (filteredForTable.length === 0) {
+  // ✅ SIMPAN TOTAL ITEMS SEBELUM PAGINATION (INI YANG PENTING!)
+  const totalItemsBeforePagination = filteredForTable.length;
+  
+  // ==================== STEP 5: RESET HALAMAN JIKA MELEBIHI TOTAL ====================
+  const totalPages = Math.ceil(totalItemsBeforePagination / paginationState.keuanganTable.itemsPerPage);
+  if (paginationState.keuanganTable.currentPage > totalPages && totalPages > 0) {
+    paginationState.keuanganTable.currentPage = 1;
+  }
+  
+  // ==================== STEP 6: TERAPKAN PAGINATION ====================
+  filteredForTable = getPaginatedData(filteredForTable, 'keuanganTable');
+  
+  // ==================== STEP 7: TAMPILKAN DATA KOSONG JIKA TIDAK ADA ====================
+  if (totalItemsBeforePagination === 0) {
     tbody.innerHTML = '<tr><td colspan="11" class="empty-message">Tidak ada data pada filter ini</td></tr>';
+    
+    // Hapus pagination jika ada
+    const keuanganSection = tbody.closest('.page');
+    const existingPagination = keuanganSection?.querySelector('.pagination-wrapper');
+    if (existingPagination) existingPagination.remove();
+    
     return;
   }
   
+  // ==================== STEP 8: RENDER TABLE ROWS ====================
   let currentMonth = null;
   let rowsHTML = '';
   
@@ -1477,22 +1768,18 @@ function renderKeuanganTable() {
     else if (t.jenis.includes('Penambahan')) {
       labaKotor = 0;
       
-      // ✅ PERBAIKAN: Format baru untuk Barang (Qty) - TANPA nama barang
       if (t.jenis === 'Penambahan Barang Baru') {
-        // Untuk barang utama: tampilkan stok tersedia, terjual, dan total
         barangList = `<ul class="barang-list">
           <li><strong>Stok Tersedia:</strong> ${t.totalStokTersedia} ${t.turunanLabel}</li>
           <li><strong>Terjual:</strong> ${t.totalItemTerjual} ${t.turunanLabel}</li>
           <li style="border-top: 1px solid #ddd; margin-top: 5px; padding-top: 5px;"><strong>Total Keseluruhan:</strong> ${t.totalKeseluruhan} ${t.turunanLabel}</li>
         </ul>`;
       } else {
-        // Untuk Penambahan Stok Lama: hanya tampilkan stok tersedia batch ini
         barangList = `<ul class="barang-list">
           <li><strong>Stok Batch Ini:</strong> ${t.totalStokTersedia} ${t.turunanLabel}</li>
         </ul>`;
       }
       
-      // ✅ PERBAIKAN: Format baru untuk Harga/Unit (harga terbaru)
       if (t.jenisKelompok && t.jenisKelompok !== 'Satuan') {
         hargaList = `<ul class="barang-list">
           <li><strong>Modal:</strong> ${formatRupiah(t.modalBarang)}</li>
@@ -1536,6 +1823,27 @@ function renderKeuanganTable() {
   });
   
   tbody.innerHTML = rowsHTML;
+  
+  // ==================== STEP 9: TAMBAHKAN PAGINATION ====================
+  const keuanganSection = tbody.closest('.page');
+  if (!keuanganSection) return;
+  
+  let paginationWrapper = keuanganSection.querySelector('.pagination-wrapper');
+  if (!paginationWrapper) {
+    paginationWrapper = document.createElement('div');
+    paginationWrapper.className = 'pagination-wrapper';
+    paginationWrapper.id = 'keuanganTable';
+    
+    const tableContainer = tbody.closest('.table-container');
+    if (tableContainer && tableContainer.parentNode) {
+      tableContainer.parentNode.insertBefore(paginationWrapper, tableContainer.nextSibling);
+    }
+  }
+  
+  // ✅ GUNAKAN totalItemsBeforePagination, BUKAN filteredForTable.length
+  paginationWrapper.innerHTML = createPaginationHTML('keuanganTable', totalItemsBeforePagination,
+    paginationState.keuanganTable.currentPage,
+    paginationState.keuanganTable.itemsPerPage);
 }
 
 function updateKeuanganSummary(pemasukan, pengeluaran, labaKotor) {
@@ -2112,13 +2420,22 @@ function renderBangunanTable() {
   
   if (Object.keys(customerMap).length === 0) {
     tbody.innerHTML = '<tr><td colspan="8" class="empty-message">Belum ada data deposit</td></tr>';
+    
+    // ✅ HAPUS PAGINATION JIKA ADA
+    const bangunanSection = tbody.closest('.tab-content');
+    const existingPagination = bangunanSection?.querySelector('.pagination-wrapper');
+    if (existingPagination) existingPagination.remove();
+    
     return;
   }
   
   let html = '';
   let grandTotal = 0;
   
-  Object.keys(customerMap).sort().forEach(customerName => {
+  const customerNames = Object.keys(customerMap).sort();
+  const paginatedCustomers = getPaginatedData(customerNames, 'bangunanTable');
+  
+  paginatedCustomers.forEach(customerName => {
     const transactions = customerMap[customerName].sort((a, b) => 
       new Date(a.waktu) - new Date(b.waktu)
     );
@@ -2178,6 +2495,27 @@ function renderBangunanTable() {
   
   tbody.innerHTML = html;
   
+  // ✅ PERBAIKAN: Pastikan pagination ditambahkan dengan benar
+  const bangunanSection = tbody.closest('.tab-content');
+  if (!bangunanSection) return;
+  
+  let paginationWrapper = bangunanSection.querySelector('.pagination-wrapper');
+  if (!paginationWrapper) {
+    paginationWrapper = document.createElement('div');
+    paginationWrapper.className = 'pagination-wrapper';
+    paginationWrapper.id = 'bangunanTable';
+    
+    // ✅ Tambahkan setelah table container
+    const tableContainer = tbody.closest('.table-container');
+    if (tableContainer && tableContainer.parentNode) {
+      tableContainer.parentNode.insertBefore(paginationWrapper, tableContainer.nextSibling);
+    }
+  }
+  
+  paginationWrapper.innerHTML = createPaginationHTML('bangunanTable', customerNames.length,
+    paginationState.bangunanTable.currentPage,
+    paginationState.bangunanTable.itemsPerPage);
+  
   const totalBangunan = document.getElementById('totalBangunan');
   if (totalBangunan) totalBangunan.textContent = formatRupiah(grandTotal);
 }
@@ -2189,16 +2527,24 @@ function renderTakTerdugaTable() {
   const takTerdugaData = pengeluaranData.filter(p => 
     p.jenis !== 'Simpan Uang Bangunan' && p.jenis !== 'Gaji Karyawan'
   );
-  const sortedData = [...takTerdugaData].sort((a, b) => new Date(b.waktu) - new Date(a.waktu));  
+  const sortedData = [...takTerdugaData].sort((a, b) => new Date(b.waktu) - new Date(a.waktu)); 
   
   if (sortedData.length === 0) {
     tbody.innerHTML = '<tr><td colspan="5" class="empty-message">Belum ada data biaya</td></tr>';
     const totalTakTerduga = document.getElementById('totalTakTerduga');
     if (totalTakTerduga) totalTakTerduga.textContent = 'Rp 0';
+    
+    // ✅ HAPUS PAGINATION JIKA ADA
+    const takTerdugaSection = tbody.closest('.tab-content');
+    const existingPagination = takTerdugaSection?.querySelector('.pagination-wrapper');
+    if (existingPagination) existingPagination.remove();
+    
     return;
   }
   
-  tbody.innerHTML = sortedData.map((item) => {
+  const paginatedData = getPaginatedData(sortedData, 'takTerdugaTable'); 
+  
+  tbody.innerHTML = paginatedData.map((item) => {
     const biaya = parseFloat(item.biaya) || 0;
     return `<tr>
       <td>${formatDateTime(item.waktu)}</td>
@@ -2216,6 +2562,27 @@ function renderTakTerdugaTable() {
   const total = takTerdugaData.reduce((sum, item) => sum + (parseFloat(item.biaya) || 0), 0);
   const totalTakTerduga = document.getElementById('totalTakTerduga');
   if (totalTakTerduga) totalTakTerduga.textContent = formatRupiah(total);
+  
+  // ✅ PERBAIKAN: Pastikan pagination ditambahkan dengan benar
+  const takTerdugaSection = tbody.closest('.tab-content');
+  if (!takTerdugaSection) return;
+  
+  let paginationWrapper = takTerdugaSection.querySelector('.pagination-wrapper');
+  if (!paginationWrapper) {
+    paginationWrapper = document.createElement('div');
+    paginationWrapper.className = 'pagination-wrapper';
+    paginationWrapper.id = 'takTerdugaTable';
+    
+    // ✅ Tambahkan setelah table container
+    const tableContainer = tbody.closest('.table-container');
+    if (tableContainer && tableContainer.parentNode) {
+      tableContainer.parentNode.insertBefore(paginationWrapper, tableContainer.nextSibling);
+    }
+  }
+  
+  paginationWrapper.innerHTML = createPaginationHTML('takTerdugaTable', sortedData.length,
+    paginationState.takTerdugaTable.currentPage,
+    paginationState.takTerdugaTable.itemsPerPage);
 }
 
 function renderGajiTable() {
@@ -2229,10 +2596,18 @@ function renderGajiTable() {
     tbody.innerHTML = '<tr><td colspan="5" class="empty-message">Belum ada data gaji</td></tr>';
     const totalGaji = document.getElementById('totalGaji');
     if (totalGaji) totalGaji.textContent = 'Rp 0';
+    
+    // ✅ HAPUS PAGINATION JIKA ADA
+    const gajiSection = tbody.closest('.tab-content');
+    const existingPagination = gajiSection?.querySelector('.pagination-wrapper');
+    if (existingPagination) existingPagination.remove();
+    
     return;
   }
   
-  tbody.innerHTML = sortedData.map((item) => {
+  const paginatedData = getPaginatedData(sortedData, 'gajiTable');
+  
+  tbody.innerHTML = paginatedData.map((item) => {
     const biaya = parseFloat(item.biaya) || 0;
     return `<tr>
       <td>${formatDateTime(item.waktu)}</td>
@@ -2250,7 +2625,29 @@ function renderGajiTable() {
   const total = gajiData.reduce((sum, item) => sum + (parseFloat(item.biaya) || 0), 0);
   const totalGaji = document.getElementById('totalGaji');
   if (totalGaji) totalGaji.textContent = formatRupiah(total);
+  
+  // ✅ PERBAIKAN: Pastikan pagination ditambahkan dengan benar
+  const gajiSection = tbody.closest('.tab-content');
+  if (!gajiSection) return;
+  
+  let paginationWrapper = gajiSection.querySelector('.pagination-wrapper');
+  if (!paginationWrapper) {
+    paginationWrapper = document.createElement('div');
+    paginationWrapper.className = 'pagination-wrapper';
+    paginationWrapper.id = 'gajiTable';
+    
+    // ✅ Tambahkan setelah table container
+    const tableContainer = tbody.closest('.table-container');
+    if (tableContainer && tableContainer.parentNode) {
+      tableContainer.parentNode.insertBefore(paginationWrapper, tableContainer.nextSibling);
+    }
+  }
+  
+  paginationWrapper.innerHTML = createPaginationHTML('gajiTable', sortedData.length,
+    paginationState.gajiTable.currentPage,
+    paginationState.gajiTable.itemsPerPage);
 }
+
 
 window.deletePengeluaranItem = async function(waktu, biaya) {
   if (!isOnline()) {
@@ -2286,6 +2683,292 @@ async function reloadPageData() {
   }
 }
 
+// ==================== CATATAN FUNCTIONS ====================
+
+async function loadCatatanData() {
+  try {
+    // ✅ PERBAIKAN: Panggil fungsi dari global_api.js, BUKAN memanggil diri sendiri
+    const response = await sendToSheet("FETCH_CATATAN", {});
+    if (!response.success) return [];
+    
+    return response.result.map((item) => ({
+      id: item.id,
+      judul: item.judul || "",
+      isi: item.isi || "",
+      waktu: item.waktu,
+      diubah: item.diubah || null,
+      charCount: item.charCount || 0,
+    })).sort((a, b) => new Date(b.waktu) - new Date(a.waktu));
+  } catch (error) {
+    console.error('Error loading catatan:', error);
+    return [];
+  }
+}
+
+
+async function saveCatatanDataToSheet(catatan) {
+  try {
+    await window.saveCatatanData(catatan);
+    return true;
+  } catch (error) {
+    console.error('Error saving catatan:', error);
+    alert('❌ Gagal menyimpan catatan. Silakan coba lagi.');
+    return false;
+  }
+}
+
+async function deleteCatatanDataFromSheet(id) {
+  try {
+    await window.deleteCatatanData(id);
+    return true;
+  } catch (error) {
+    console.error('Error deleting catatan:', error);
+    alert('❌ Gagal menghapus catatan. Silakan coba lagi.');
+    return false;
+  }
+}
+
+function initCatatan() {
+  const btnTambah = document.getElementById('btnTambahCatatan');
+  const btnBack = document.getElementById('btnBackFromForm');
+  const btnCancel = document.getElementById('btnCancelCatatan');
+  const btnSave = document.getElementById('btnSaveCatatan');
+  const catatanIsiTextarea = document.getElementById('catatanIsi');
+  
+  if (btnTambah) {
+    btnTambah.addEventListener('click', () => {
+      showCatatanForm();
+    });
+  }
+  
+  if (btnBack) {
+    btnBack.addEventListener('click', () => {
+      hideCatatanForm();
+    });
+  }
+  
+  if (btnCancel) {
+    btnCancel.addEventListener('click', () => {
+      if (confirm('Batalkan perubahan? Data yang belum disimpan akan hilang.')) {
+        hideCatatanForm();
+      }
+    });
+  }
+  
+  if (btnSave) {
+    btnSave.addEventListener('click', (e) => {
+      e.preventDefault();
+      handleSaveCatatan();
+    });
+  }
+  
+  if (catatanIsiTextarea) {
+    catatanIsiTextarea.addEventListener('input', updateCharCount);
+  }
+}
+
+function showCatatanForm(catatanId = null) {
+  const listView = document.getElementById('catatanListView');
+  const formView = document.getElementById('catatanFormView');
+  const form = document.getElementById('formCatatan');
+  
+  if (listView) listView.style.display = 'none';
+  if (formView) formView.style.display = 'block';
+  
+  if (form) form.reset();
+  
+  currentEditingCatatanId = catatanId;
+  
+  if (catatanId) {
+    const catatan = catatanData.find(c => c.id === catatanId);
+    if (catatan) {
+      document.getElementById('catatanId').value = catatan.id;
+      document.getElementById('catatanJudul').value = catatan.judul;
+      document.getElementById('catatanIsi').value = catatan.isi;
+    }
+  } else {
+    document.getElementById('catatanId').value = '';
+  }
+  
+  updateCatatanDateTime();
+  updateCharCount();
+}
+
+function hideCatatanForm() {
+  const listView = document.getElementById('catatanListView');
+  const formView = document.getElementById('catatanFormView');
+  const form = document.getElementById('formCatatan');
+  
+  if (listView) listView.style.display = 'block';
+  if (formView) formView.style.display = 'none';
+  if (form) form.reset();
+  
+  currentEditingCatatanId = null;
+}
+
+function updateCatatanDateTime() {
+  const dateTimeEl = document.getElementById('catatanDateTime');
+  if (dateTimeEl) {
+    const now = new Date();
+    const formatted = now.toLocaleDateString('id-ID', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZone: 'Asia/Jakarta'
+    });
+    dateTimeEl.textContent = formatted;
+  }
+}
+
+function updateCharCount() {
+  const isiTextarea = document.getElementById('catatanIsi');
+  const charCountEl = document.getElementById('catatanCharCount');
+  
+  if (isiTextarea && charCountEl) {
+    const count = isiTextarea.value.length;
+    charCountEl.textContent = `${count} karakter`;
+  }
+}
+
+async function handleSaveCatatan() {
+  if (!isOnline()) {
+    alert('❌ Tidak ada koneksi internet. Simpan catatan memerlukan koneksi online.');
+    return;
+  }
+  
+  const judul = document.getElementById('catatanJudul').value.trim();
+  const isi = document.getElementById('catatanIsi').value.trim();
+  
+  if (!judul) {
+    alert('❌ Judul catatan harus diisi!');
+    return;
+  }
+  
+  if (!isi) {
+    alert('❌ Isi catatan harus diisi!');
+    return;
+  }
+  
+  const waktu = getNowWIB();
+  const isEdit = currentEditingCatatanId !== null;
+  
+  const catatan = {
+    id: isEdit ? currentEditingCatatanId : `catatan_${Date.now()}`,
+    judul: judul,
+    isi: isi,
+    waktu: isEdit ? (catatanData.find(c => c.id === currentEditingCatatanId)?.waktu || waktu) : waktu,
+    diubah: isEdit ? waktu : null,
+    charCount: isi.length
+  };
+  
+  showLoading(true);
+  
+  const saved = await saveCatatanDataToSheet(catatan);
+  
+  if (saved) {
+    if (isEdit) {
+      const index = catatanData.findIndex(c => c.id === currentEditingCatatanId);
+      if (index !== -1) {
+        catatanData[index] = catatan;
+      }
+      alert('✅ Catatan berhasil diperbarui!');
+    } else {
+      catatanData.unshift(catatan);
+      alert('✅ Catatan berhasil disimpan!');
+    }
+    
+    hideCatatanForm();
+    await renderCatatanList();
+  }
+  
+  showLoading(false);
+}
+
+async function renderCatatanList() {
+  const container = document.getElementById('catatanListContainer');
+  if (!container) return;
+  
+  showLoading(true);
+  
+  catatanData = await loadCatatanData();
+  
+  showLoading(false);
+  
+  if (catatanData.length === 0) {
+    container.innerHTML = `
+      <div class="catatan-empty">
+        <i class="fas fa-sticky-note"></i>
+        <h4>Belum Ada Catatan</h4>
+        <p>Klik tombol "Tambah Catatan" untuk membuat catatan pertama Anda</p>
+      </div>
+    `;
+    return;
+  }
+  
+  container.innerHTML = catatanData.map(catatan => {
+    const preview = catatan.isi.length > 150 ? catatan.isi.substring(0, 150) + '...' : catatan.isi;
+    const isEdited = catatan.diubah ? true : false;
+    
+    return `
+      <div class="catatan-item">
+        <div class="catatan-item-header">
+          <div class="catatan-item-title">${catatan.judul}</div>
+          <div class="catatan-item-actions">
+            <button class="btn-edit-catatan" onclick="editCatatan('${catatan.id}')">
+              <i class="fas fa-edit"></i> Edit
+            </button>
+            <button class="btn-delete-catatan" onclick="deleteCatatan('${catatan.id}')">
+              <i class="fas fa-trash"></i> Hapus
+            </button>
+          </div>
+        </div>
+        <div class="catatan-item-meta">
+          <span><i class="fas fa-calendar"></i> ${formatDateTime(catatan.waktu)}</span>
+          <span><i class="fas fa-text-width"></i> ${catatan.charCount} karakter</span>
+          ${isEdited ? `<span style="color: #f59e0b;"><i class="fas fa-edit"></i> Diedit: ${formatDateTime(catatan.diubah)}</span>` : ''}
+        </div>
+        <div class="catatan-item-preview">${preview}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+window.editCatatan = function(id) {
+  showCatatanForm(id);
+};
+
+window.deleteCatatan = async function(id) {
+  if (!isOnline()) {
+    alert('❌ Tidak ada koneksi internet. Hapus catatan memerlukan koneksi online.');
+    return;
+  }
+  
+  const catatan = catatanData.find(c => c.id === id);
+  if (!catatan) return;
+  
+  if (confirm(`Yakin ingin menghapus catatan "${catatan.judul}"?\n\nTindakan ini tidak dapat dibatalkan!`)) {
+    showLoading(true);
+    
+    const deleted = await deleteCatatanDataFromSheet(id);
+    
+    if (deleted) {
+      const index = catatanData.findIndex(c => c.id === id);
+      if (index !== -1) {
+        catatanData.splice(index, 1);
+      }
+      
+      alert('✅ Catatan berhasil dihapus!');
+      await renderCatatanList();
+    }
+    
+    showLoading(false);
+  }
+};
+
+
 document.addEventListener('DOMContentLoaded', async () => {
   try {
     await loadAllData();
@@ -2297,6 +2980,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initKeuangan();
   initDiagram();
   initPengeluaranTabs();
+  initCatatan(); // ✅ TAMBAHKAN INI
   updateDateTime();
   setInterval(updateDateTime, 1000);
   

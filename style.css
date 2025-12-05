@@ -304,9 +304,408 @@ td[colspan] { text-align: center; padding: 20px; }
 .form-group label { display: block; font-weight: 600; margin-bottom: 5px; }
 .form-group input, .form-group textarea { width: 100%; }
 .form-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+/* CATATAN STYLES */
+.catatan-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.catatan-list-view {
+  width: 100%;
+}
+
+.catatan-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.catatan-item {
+  background: #ffffff;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 20px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.catatan-item:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+  transform: translateY(-2px);
+}
+
+.catatan-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.catatan-item-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-dark);
+  flex: 1;
+  margin-right: 15px;
+  word-wrap: break-word;
+}
+
+.catatan-item-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.catatan-item-meta {
+  display: flex;
+  gap: 15px;
+  font-size: 12px;
+  color: var(--text-gray);
+  margin-bottom: 10px;
+}
+
+.catatan-item-preview {
+  font-size: 14px;
+  color: #64748b;
+  line-height: 1.6;
+  max-height: 60px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.catatan-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-gray);
+}
+
+.catatan-empty i {
+  font-size: 64px;
+  color: #e5e7eb;
+  margin-bottom: 20px;
+}
+
+.catatan-empty h4 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.catatan-empty p {
+  font-size: 14px;
+}
+
+/* CATATAN FORM VIEW */
+.catatan-form-view {
+  width: 100%;
+}
+
+.catatan-form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.btn-back {
+  background: none;
+  border: 2px solid var(--border-color);
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dark);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.btn-back:hover {
+  background-color: #f3f4f6;
+  border-color: var(--text-dark);
+}
+
+.catatan-form-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.catatan-form {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.catatan-form .form-group {
+  margin-bottom: 20px;
+}
+
+.catatan-form label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: var(--text-dark);
+}
+
+.catatan-form input[type="text"],
+.catatan-form textarea {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.3s ease;
+}
+
+.catatan-form input[type="text"]:focus,
+.catatan-form textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.catatan-form textarea {
+  resize: vertical;
+  min-height: 300px;
+  line-height: 1.6;
+}
+
+.catatan-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: #f9fafb;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+
+.catatan-datetime {
+  font-size: 13px;
+  color: var(--text-gray);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.catatan-datetime::before {
+  content: "📅";
+  font-size: 16px;
+}
+
+.catatan-char-count {
+  font-size: 13px;
+  color: var(--text-gray);
+  font-weight: 600;
+}
+
+/* BUTTON CATATAN */
+.btn-edit-catatan,
+.btn-delete-catatan {
+  background: none;
+  border: 1px solid var(--border-color);
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.btn-edit-catatan {
+  color: var(--primary-color);
+}
+
+.btn-edit-catatan:hover {
+  background-color: rgba(37, 99, 235, 0.1);
+  border-color: var(--primary-color);
+}
+
+.btn-delete-catatan {
+  color: var(--danger-color);
+}
+
+.btn-delete-catatan:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+  border-color: var(--danger-color);
+}
+/* ==================== PAGINATION STYLES ==================== */
+.pagination-wrapper {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.pagination-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  padding: 20px;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.pagination {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.pagination-btn {
+  min-width: 40px;
+  height: 40px;
+  padding: 0 12px;
+  background: #ffffff;
+  border: 2px solid #e5e7eb;
+  border-radius: 6px;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pagination-btn:hover:not(.disabled) {
+  background: #f3f4f6;
+  border-color: #3b82f6;
+  color: #3b82f6;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+}
+
+.pagination-btn.active {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  border-color: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 4px 8px rgba(37, 99, 235, 0.3);
+  cursor: default;
+}
+
+.pagination-btn.disabled {
+  background: #f3f4f6;
+  border-color: #e5e7eb;
+  color: #9ca3af;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.pagination-btn i {
+  font-size: 12px;
+}
+
+.pagination-ellipsis {
+  padding: 0 8px;
+  color: #9ca3af;
+  font-weight: 600;
+  user-select: none;
+}
+
+.pagination-info {
+  font-size: 14px;
+  color: #6b7280;
+  font-weight: 500;
+  text-align: center;
+}
 @media print { .data-table th:nth-child(9), .data-table td:nth-child(9) { display: none; } body { font-family: Arial, sans-serif; } h2 { text-align: center; margin-bottom: 5px; } .print-period { text-align: center; margin-top: 0; font-size: 14px; } table { width: 100%; border-collapse: collapse; margin-top: 20px; } th, td { border: 1px solid #000; padding: 8px; text-align: left; font-size: 12px; } th { background-color: #f2f2f2; } .summary { margin-top: 20px; text-align: right; } .summary div { font-weight: bold; margin-bottom: 5px; } .container { display: block; } .sidebar, .header, .btn-menu, .btn-primary, .btn-search, .btn-checkout, .btn-edit, .btn-delete, .nav-menu { display: none !important; } .main-content, .page { padding: 0; margin: 0; box-shadow: none; width: 100%; } .data-table { margin-top: 0; } .keuangan-summary, .realtime-stats, .diagram-filter, .chart-container, .chart-info { display: none !important; } .data-table th, .data-table td { border: 1px solid #000; padding: 5px; font-size: 10px; } #keuangan table, #stok table { page-break-after: always; } .table-container { overflow-x: visible; } }
 @media (max-width: 1024px) { .transaksi-container, .stok-container { grid-template-columns: 1fr; gap: 20px; } .search-section { order: 2; } .cart-section { order: 1; } .keuangan-summary { grid-template-columns: repeat(3, 1fr); } .keuangan-filter-buttons { gap: 8px; } .btn-filter-keuangan { padding: 8px 16px; font-size: 13px; } .stats-grid { grid-template-columns: repeat(2, 1fr); } .realtime-stats { grid-template-columns: repeat(2, 1fr); } .stok-input-grid { grid-template-columns: 1fr 1fr; } .chart-container { height: 350px; } .table-container { -webkit-overflow-scrolling: touch; } .data-table th, .data-table td { padding: 10px; font-size: 13px; } .modal-content { width: 80%; max-width: 600px; } .filter-bulan { flex-wrap: wrap; } .section-header, .stok-header, .keuangan-header, .diagram-header { flex-wrap: wrap; gap: 10px; } .refund-search-controls { flex-wrap: wrap; } .refund-search-name { min-width: 200px; } .search-box-listbarang { width: 100%; max-width: 400px; } }
 @media (max-width: 768px) {
+  .pagination-container {
+    padding: 15px;
+    gap: 12px;
+  }
+  
+  .pagination {
+    gap: 6px;
+  }
+  
+  .pagination-btn {
+    min-width: 36px;
+    height: 36px;
+    padding: 0 10px;
+    font-size: 13px;
+  }
+  
+  .pagination-info {
+    font-size: 13px;
+  }
+
+  .catatan-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  
+  .catatan-header .btn-primary {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .catatan-item {
+    padding: 15px;
+  }
+  
+  .catatan-item-header {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .catatan-item-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+  
+  .catatan-item-title {
+    font-size: 16px;
+    margin-right: 0;
+  }
+  
+  .catatan-form-header {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .catatan-form-actions {
+    width: 100%;
+  }
+  
+  .catatan-form-actions button {
+    flex: 1;
+  }
+  
+  .btn-back {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .catatan-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .catatan-form textarea {
+    min-height: 250px;
+  }
+
   /* MENU BUTTON */
   .btn-menu { 
     display: block; 
@@ -1274,5 +1673,246 @@ td[colspan] { text-align: center; padding: 20px; }
     border-radius: 3px;
   }
 }
-@media (max-width: 480px) { #pageTitle { font-size: 16px; } .header-right { font-size: 11px; } .stat-info h3 { font-size: 18px; } .rt-card p { font-size: 20px; } .keuangan-summary { grid-template-columns: 1fr; } .kelompok-buttons { grid-template-columns: 1fr 1fr; } .btn-kelompok { font-size: 11px; padding: 8px 4px; } .btn-kelompok i { font-size: 16px; } .summary-card p { font-size: 16px; } .btn-filter-keuangan { font-size: 11px; padding: 8px 10px; } .btn-filter-keuangan i { font-size: 12px; } .data-table th, .data-table td { padding: 6px; font-size: 11px; } .btn-stok { font-size: 12px; padding: 8px 10px; } .btn-stok i { font-size: 12px; } .stok-badge { font-size: 10px; padding: 1px 6px; } .btn-checkout, .btn-finish-refund { font-size: 15px; } .sidebar { width: 220px; left: -220px; } .sidebar.show { left: 0; } .sidebar .logo h2 { font-size: 18px; } .sidebar .logo i { font-size: 24px; } .deposit-section { padding: 10px; margin: 10px 0; } .btn-deposit, .btn-deposit-cancel { padding: 12px; font-size: 13px; } .btn-deposit i, .btn-deposit-cancel i { font-size: 14px; } .deposit-search-results { max-height: 200px; } .deposit-customer-info { padding: 8px; } .deposit-customer-name { font-size: 12px; } .deposit-customer-balance { font-size: 12px; } .btn-stok-selector { padding: 12px; font-size: 13px; } .tab-stok-btn { padding: 12px; font-size: 13px; } .tab-stok-btn i { font-size: 14px; } .logo-image { width: 45px; height: 45px; } .nav-item { padding: 12px 15px; } .nav-item i { font-size: 16px; } .search-results, .search-results-refund { max-height: 250px; } .cart-items, .refund-items-box { max-height: 200px; } .refund-transaction-list { max-height: 250px; } }
+@media (max-width: 480px) {
+  .pagination-container {
+    padding: 12px;
+    gap: 10px;
+  }
+  
+  .pagination {
+    gap: 4px;
+  }
+  
+  .pagination-btn {
+    min-width: 32px;
+    height: 32px;
+    padding: 0 8px;
+    font-size: 12px;
+  }
+  
+  .pagination-ellipsis {
+    padding: 0 4px;
+    font-size: 12px;
+  }
+  
+  .pagination-info {
+    font-size: 12px;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .catatan-item-title {
+    font-size: 15px;
+  }
+  
+  .catatan-item-meta {
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .btn-edit-catatan,
+  .btn-delete-catatan {
+    padding: 8px 12px;
+    min-width: 70px;
+    justify-content: center;
+  }
+
+ #pageTitle { font-size: 16px; } .header-right { font-size: 11px; } .stat-info h3 { font-size: 18px; } .rt-card p { font-size: 20px; } .keuangan-summary { grid-template-columns: 1fr; } .kelompok-buttons { grid-template-columns: 1fr 1fr; } .btn-kelompok { font-size: 11px; padding: 8px 4px; } .btn-kelompok i { font-size: 16px; } .summary-card p { font-size: 16px; } .btn-filter-keuangan { font-size: 11px; padding: 8px 10px; } .btn-filter-keuangan i { font-size: 12px; } .data-table th, .data-table td { padding: 6px; font-size: 11px; } .btn-stok { font-size: 12px; padding: 8px 10px; } .btn-stok i { font-size: 12px; } .stok-badge { font-size: 10px; padding: 1px 6px; } .btn-checkout, .btn-finish-refund { font-size: 15px; } .sidebar { width: 220px; left: -220px; } .sidebar.show { left: 0; } .sidebar .logo h2 { font-size: 18px; } .sidebar .logo i { font-size: 24px; } .deposit-section { padding: 10px; margin: 10px 0; } .btn-deposit, .btn-deposit-cancel { padding: 12px; font-size: 13px; } .btn-deposit i, .btn-deposit-cancel i { font-size: 14px; } .deposit-search-results { max-height: 200px; } .deposit-customer-info { padding: 8px; } .deposit-customer-name { font-size: 12px; } .deposit-customer-balance { font-size: 12px; } .btn-stok-selector { padding: 12px; font-size: 13px; } .tab-stok-btn { padding: 12px; font-size: 13px; } .tab-stok-btn i { font-size: 14px; } .logo-image { width: 45px; height: 45px; } .nav-item { padding: 12px 15px; } .nav-item i { font-size: 16px; } .search-results, .search-results-refund { max-height: 250px; } .cart-items, .refund-items-box { max-height: 200px; } .refund-transaction-list { max-height: 250px; } }
+.table-container table {
+  animation: fadeIn 0.3s ease;
+}
+#keuangan {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+/* Fix keuangan header agar tidak overflow */
+.keuangan-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 15px;
+  width: 100%;
+  max-width: 100%;
+}
+
+.keuangan-header h3 {
+  flex-shrink: 0;
+  margin: 0;
+}
+
+.keuangan-header-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  flex: 1;
+  justify-content: flex-end;
+  max-width: 100%;
+}
+
+/* Fix filter sections agar tidak overflow */
+.filter-bulan,
+.filter-harian {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: nowrap;
+  max-width: 100%;
+}
+
+.filter-bulan select {
+  min-width: 120px;
+  max-width: 150px;
+}
+
+/* Fix date range display */
+.date-range-display {
+  min-width: 200px;
+  max-width: 300px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Fix filter type tabs */
+.filter-type-tabs {
+  flex-shrink: 0;
+}
+
+/* Fix keuangan summary agar tidak overflow */
+.keuangan-summary {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 15px;
+  margin-bottom: 20px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.summary-card {
+  min-width: 0; /* Penting untuk mencegah overflow */
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  overflow: hidden;
+}
+
+.summary-card h4 {
+  font-size: 14px;
+  margin-bottom: 5px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.summary-card p {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Fix filter buttons agar tidak overflow */
+.keuangan-filter-buttons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 100%;
+}
+
+.btn-filter-keuangan {
+  flex: 0 1 auto; /* Jangan stretch, tapi bisa shrink */
+  white-space: nowrap;
+}
+
+/* FIX TABLE CONTAINER - INI YANG PALING PENTING */
+.table-container {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Fix data table */
+.data-table {
+  width: 100%;
+  min-width: 1200px; /* Set minimum width untuk table */
+  border-collapse: collapse;
+  table-layout: auto; /* Biarkan browser atur lebar kolom */
+}
+
+/* Atur lebar kolom table keuangan secara spesifik */
+#keuanganTable {
+  min-width: 1400px; /* Lebih lebar karena banyak kolom */
+}
+
+#keuanganTable th:nth-child(1) { width: 100px; } /* Tanggal */
+#keuanganTable th:nth-child(2) { width: 120px; } /* Jenis */
+#keuanganTable th:nth-child(3) { width: 150px; } /* Nama */
+#keuanganTable th:nth-child(4) { width: 120px; } /* Alamat */
+#keuanganTable th:nth-child(5) { width: 180px; } /* Barang */
+#keuanganTable th:nth-child(6) { width: 120px; } /* Harga/Unit */
+#keuanganTable th:nth-child(7) { width: 130px; } /* Total Harga Jual */
+#keuanganTable th:nth-child(8) { width: 120px; } /* Total HPP */
+#keuanganTable th:nth-child(9) { width: 120px; } /* Laba Kotor */
+#keuanganTable th:nth-child(10) { width: 100px; } /* Status */
+#keuanganTable th:nth-child(11) { width: 200px; } /* Catatan */
+
+/* Fix barang list agar tidak overflow */
+#keuanganTableBody .barang-list {
+  margin: 0;
+  padding-left: 0;
+  list-style-type: none;
+  font-size: 13px;
+  max-width: 100%;
+  word-wrap: break-word;
+}
+
+#keuanganTableBody .barang-list li {
+  padding: 2px 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+}
+
+/* Fix pagination wrapper */
+.pagination-wrapper {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Fix calendar popup agar tidak overflow */
+.calendar-popup {
+  max-width: 90vw; /* Maksimal 90% viewport width */
+  max-height: 90vh; /* Maksimal 90% viewport height */
+  overflow-y: auto;
+}
 

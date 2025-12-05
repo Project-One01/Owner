@@ -1,4 +1,4 @@
-const APPS_SCRIPT_URL = `https://script.google.com/macros/s/AKfycbz-BcRC2waaU_Vo5qDDBlVYfKcfudM7keR-ByMpeTdsS0aGPj-hcf9QX8qq8X8anilU/exec`;
+const APPS_SCRIPT_URL = `https://script.google.com/macros/s/AKfycbzlZkalpjxXzYUKt6fpFNwg6S_1Vy9yV-cMhCMQ2aaXFyRwbWAexsOc5aOdgQuZYeBu/exec`;
 
 function parseYYYYMMDD(dateString) {
   if (!dateString) return new Date();
@@ -645,6 +645,27 @@ function terbilang(angka) {
   }
 
   return "Angka terlalu besar";
+}
+
+async function loadCatatanData() {
+  const response = await sendToSheet("FETCH_CATATAN", {});
+  if (!response.success) return [];
+  return response.result.map((item) => ({
+    id: item.id,
+    judul: item.judul || "",
+    isi: item.isi || "",
+    waktu: item.waktu,
+    diubah: item.diubah || null,
+    charCount: item.charCount || 0,
+  }));
+}
+
+async function saveCatatanData(catatan) {
+  return await sendToSheet("SAVE_CATATAN", { data: catatan });
+}
+
+async function deleteCatatanData(id) {
+  return await sendToSheet("DELETE_CATATAN", { id: id });
 }
 
 function initGlobalAPI() {

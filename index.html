@@ -36,6 +36,10 @@
           <i class="fas fa-money-bill-wave"></i>
           <span>Pengeluaran</span>
         </a>
+        <a href="#" class="nav-item" data-page="catatan">
+          <i class="fas fa-sticky-note"></i>
+          <span>Catatan</span>
+        </a>
       </nav>
     </aside>
 
@@ -525,6 +529,58 @@
           </div>
         </div>
       </section>
+      <!-- CATATAN SECTION -->
+<section id="catatan" class="page">
+  <div class="catatan-header">
+    <h3>Catatan Pribadi</h3>
+    <button class="btn-primary" id="btnTambahCatatan">
+      <i class="fas fa-plus"></i>
+      Tambah Catatan
+    </button>
+  </div>
+  
+  <div id="catatanListView" class="catatan-list-view">
+    <div id="catatanListContainer" class="catatan-list-container"></div>
+  </div>
+  
+  <div id="catatanFormView" class="catatan-form-view" style="display: none;">
+    <div class="catatan-form-header">
+      <button class="btn-back" id="btnBackFromForm">
+        <i class="fas fa-arrow-left"></i>
+        Kembali
+      </button>
+      <div class="catatan-form-actions">
+        <button class="btn-secondary" id="btnCancelCatatan">
+          <i class="fas fa-times"></i>
+          Batal
+        </button>
+        <button class="btn-primary" id="btnSaveCatatan">
+          <i class="fas fa-save"></i>
+          Simpan
+        </button>
+      </div>
+    </div>
+    
+    <form id="formCatatan" class="catatan-form">
+      <input type="hidden" id="catatanId" />
+      
+      <div class="form-group">
+        <label>Judul Catatan</label>
+        <input type="text" id="catatanJudul" required placeholder="Masukkan judul catatan..." maxlength="100" />
+      </div>
+      
+      <div class="catatan-meta">
+        <span id="catatanDateTime" class="catatan-datetime"></span>
+        <span id="catatanCharCount" class="catatan-char-count">0 karakter</span>
+      </div>
+      
+      <div class="form-group">
+        <label>Isi Catatan</label>
+        <textarea id="catatanIsi" required placeholder="Tulis catatan Anda di sini..." rows="15"></textarea>
+      </div>
+    </form>
+  </div>
+</section>
     </main>
   </div>
 
