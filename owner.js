@@ -2980,9 +2980,21 @@ document.addEventListener('DOMContentLoaded', async () => {
   initKeuangan();
   initDiagram();
   initPengeluaranTabs();
-  initCatatan(); // ✅ TAMBAHKAN INI
+  initCatatan();
   updateDateTime();
   setInterval(updateDateTime, 1000);
+  
+  // ✅ TAMBAHKAN SCROLL LISTENER DI SINI
+  const tableContainers = document.querySelectorAll('.table-container');
+  tableContainers.forEach(container => {
+    container.addEventListener('scroll', function() {
+      if (this.scrollLeft > 10) {
+        this.classList.add('scrolled');
+      } else {
+        this.classList.remove('scrolled');
+      }
+    });
+  });
   
   const activeNavItem = document.querySelector('.nav-item.active');
   const initialPage = activeNavItem ? activeNavItem.dataset.page : 'dashboard';  
