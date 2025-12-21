@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sistem Pencatatan Toko UD.BM - Owner</title>
+      <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body>
+  <div class="container">
+    <aside class="sidebar">
+      <div class="logo">
+        <img src="icon (1).jpeg" alt="Logo Berkah Mandiri" class="logo-image">
+        <h2><span class="logo-berkah">BERKAH</span> <span class="logo-mandiri">MANDIRI</span></h2>
+      </div>
+      <nav class="nav-menu">
+        <a href="#" class="nav-item active" data-page="dashboard">
+          <i class="fas fa-home"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="#" class="nav-item" data-page="stok">
+          <i class="fas fa-boxes"></i>
+          <span>Manajemen Stok</span>
+        </a>
+        <a href="#" class="nav-item" data-page="keuangan">
+          <i class="fas fa-wallet"></i>
+          <span>Rekap Keuangan</span>
+        </a>
+        <a href="#" class="nav-item" data-page="realtime-diagram">
+          <i class="fas fa-chart-line"></i>
+          <span>Live & Diagram</span>
+        </a>
+        <a href="#" class="nav-item" data-page="pengeluaran">
+          <i class="fas fa-money-bill-wave"></i>
+          <span>Pengeluaran</span>
+        </a>
+        <a href="#" class="nav-item" data-page="catatan">
+          <i class="fas fa-sticky-note"></i>
+          <span>Catatan</span>
+        </a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="header">
+        <div class="header-left">
+          <button class="btn-menu" id="btnMenu">
+            <i class="fas fa-bars"></i>
+          </button>
+          <h1 id="pageTitle">Dashboard</h1>
+        </div>
+        <div class="header-right">
+          <span class="date-time" id="dateTime"></span>
+          <div class="user-info">
+            <i class="fas fa-user-circle"></i>
+            <span>Owner</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- DASHBOARD SECTION -->
+      <section id="dashboard" class="page active">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon blue">
+              <i class="fas fa-boxes"></i>
+            </div>
+            <div class="stat-info">
+              <h3 id="totalBarang">0</h3>
+              <p>Total Jenis Barang</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green">
+              <i class="fas fa-money-bill-wave"></i>
+            </div>
+            <div class="stat-info">
+              <h3 id="pemasukanHariIni">Rp 0</h3>
+              <p>Pemasukan Hari Ini</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon orange">
+              <i class="fas fa-shopping-cart"></i>
+            </div>
+            <div class="stat-info">
+              <h3 id="transaksiHariIni">0</h3>
+              <p>Transaksi Hari Ini</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon red">
+              <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="stat-info">
+              <h3 id="stokMenipis">0</h3>
+              <p>Stok Menipis</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="dashboard-content">
+          <div class="recent-transactions">
+            <h3>Transaksi Terbaru</h3>
+            <div id="recentTransList" class="trans-list"></div>
+          </div>
+          <div class="low-stock">
+            <h3>Stok Menipis</h3>
+            <div id="lowStockList" class="stock-alert-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MANAJEMEN STOK SECTION -->
+      <section id="stok" class="page">
+        <div class="stok-header">
+          <h3>Input & Update Stok Barang</h3>
+          <!-- ✅ ADDED: Tab untuk memilih source stok (BM1/BM2) -->
+          <div class="stok-source-tabs">
+            <button class="tab-stok-btn active" data-source="BM1">
+              <i class="fas fa-store"></i> UD.BM 1
+            </button>
+            <button class="tab-stok-btn" data-source="BM2">
+              <i class="fas fa-store-alt"></i> UD.BM 2
+            </button>
+          </div>
+        </div>
+        <div class="stok-container">
+          <div class="input-section">
+            <h3>Cari Barang/ID Baru</h3>
+            
+            <!-- MODE BUTTONS -->
+            <div class="stok-mode-buttons">
+              <button class="btn-mode active" id="btnTambahBarangBaru">
+                <i class="fas fa-plus-circle"></i>
+                Tambah Barang Baru
+              </button>
+              <button class="btn-mode" id="btnTambahStok">
+                <i class="fas fa-layer-group"></i>
+                Tambah Stok Barang Lama
+              </button>
+            </div>
+            
+            <!-- MODE INDICATOR -->
+            <div class="mode-indicator mode-new" id="stokModeIndicator">
+              Mode: Tambah Barang Baru
+            </div>
+            
+            <div class="search-box">
+              <input type="text" id="searchBarangStok" placeholder="Cari ID atau Nama Barang..." />
+              <button class="btn-search" id="btnSearchStok">
+                <i class="fas fa-search"></i>
+              </button>
+            </div>
+
+            <!-- ✅ ADDED: Info stok lama untuk mode tambah stok -->
+            <div id="stokLamaInfo" style="display: none; padding: 10px; background: #eff6ff; border-left: 4px solid #3b82f6; margin: 15px 0; border-radius: 4px; font-weight: 600; color: #1e40af;"></div>
+
+            <hr class="form-separator" />
+
+            <div id="stokInputFormContainer">
+              <form id="formStokInput">
+                <input type="hidden" id="stokIsNew" value="true" />
+                <input type="hidden" id="stokIndex" />
+                <!-- ✅ ADDED: Hidden input untuk current stok source -->
+                <input type="hidden" id="currentStokSourceInput" value="BM1" />
+
+                <!-- ✅ ADDED: Display current source -->
+                <div style="padding: 8px 12px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border-radius: 6px; margin-bottom: 15px; font-weight: 600; text-align: center;">
+                  <i class="fas fa-warehouse"></i> Input Stok untuk: <span id="currentStokSource">UD.BM 1</span>
+                </div>
+
+                <div class="form-group">
+                  <label>ID Barang</label>
+                  <input type="text" id="stokIdBarang" required placeholder="Contoh: 01" />
+                  <p id="idStokAlert" style="display: none; color: #f59e0b; margin-top: 5px;">ID ini sudah ada. Anda akan melakukan update.</p>
+                </div>
+
+                <div class="form-group">
+                  <label>Nama Barang</label>
+                  <input type="text" id="stokNamaBarang" required />
+                </div>
+
+                <div class="form-group">
+                  <label>Kelompok Barang</label>
+                  <div class="kelompok-buttons">
+                    <button type="button" class="btn-kelompok" data-kelompok="satuan">
+                      <i class="fas fa-box"></i> Satuan
+                    </button>
+                    <button type="button" class="btn-kelompok" data-kelompok="kotak">
+                      <i class="fas fa-boxes"></i> Kotak
+                    </button>
+                    <button type="button" class="btn-kelompok" data-kelompok="kodi">
+                      <i class="fas fa-layer-group"></i> Kodi
+                    </button>
+                    <button type="button" class="btn-kelompok" data-kelompok="meter">
+                      <i class="fas fa-ruler"></i> Meter
+                    </button>
+                    <button type="button" class="btn-kelompok" data-kelompok="kilogram">
+                      <i class="fas fa-weight"></i> Kilogram
+                    </button>
+                    <button type="button" class="btn-kelompok" data-kelompok="keping">
+                      <i class="fas fa-clone"></i> Keping
+                    </button>
+                    <button type="button" class="btn-kelompok" data-kelompok="dumptruck">
+                      <i class="fas fa-truck"></i> Dump Truck
+                    </button>
+                  </div>
+                  <input type="hidden" id="stokJenisKelompok" value="satuan" />
+                </div>
+
+                <div class="form-group" id="groupBanyakItem" style="display: none;">
+                  <label>Banyak Item per <span id="labelBanyakItem">Kotak</span></label>
+                  <input type="number" id="stokBanyakItem" value="1" min="1" />
+                </div>
+
+                <div class="form-group">
+                  <label>Harga Modal (<span id="labelModalKelompok">Satuan</span>)</label>
+                  <input type="number" id="stokHargaModal" required value="0" />
+                </div>
+
+                <div class="form-group">
+                  <label>Harga Jual (<span id="labelJualKelompok">Satuan</span>)</label>
+                  <input type="number" id="stokHargaKelompok" required value="0" />
+                </div>
+
+                <div class="form-group" id="groupTurunan" style="display: none;">
+                  <label>Harga Jual Turunan (<span id="labelTurunan">Item</span>)</label>
+                  <div class="turunan-info">
+                    <input type="number" id="stokHargaTurunan" value="0" />
+                    <small id="infoTurunan">Harga per item turunan</small>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>Stok Kelompok <span id="labelStokKelompok">UD.BM 1</span></label>
+                  <input type="number" id="stokJumlahKelompok" required value="0" min="0" />
+                </div>
+
+                <div class="form-group" id="groupStokTurunan" style="display: none;">
+                  <label>Stok Turunan (<span id="labelStokTurunan">Item</span>)</label>
+                  <input type="number" id="stokJumlahTurunan" value="0" min="0" />
+                  <small>Untuk barang turunan yang berlebih (tidak termasuk stok kelompok)</small>
+                </div>
+
+                <div class="form-actions">
+                  <button type="submit" class="btn-primary" id="btnSimpanStok">
+                    <i class="fas fa-save"></i>
+                    <span id="stokButtonText">Tambah Barang</span>
+                  </button>
+                  <button type="button" class="btn-secondary" id="btnResetStok">Reset Form</button>
+                </div>
+              </form>
+            </div>
+          </div>
+          
+          <div class="table-list-section">
+            <h3>Daftar Stok Barang - <span id="tableStokSource">UD.BM 1</span></h3>
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Nama Barang</th>
+                    <th>Kelompok</th>
+                    <th>Isi/Unit</th>
+                    <th>Harga Kelompok</th>
+                    <th>Turunan</th>
+                    <th>Harga Turunan</th>
+                    <th>Stok Kelompok</th>
+                    <th>Stok Turunan</th>
+                    <th>Total Stok</th>
+                    <th>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="stokTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- REKAP KEUANGAN SECTION -->
+      <section id="keuangan" class="page">
+        <div class="keuangan-header">
+          <h3>Rekap Keuangan Bulanan</h3>
+          <div class="keuangan-header-controls">
+            <div class="filter-bulan">
+              <select id="filterBulan">
+                <option value="01">Januari</option>
+                <option value="02">Februari</option>
+                <option value="03">Maret</option>
+                <option value="04">April</option>
+                <option value="05">Mei</option>
+                <option value="06">Juni</option>
+                <option value="07">Juli</option>
+                <option value="08">Agustus</option>
+                <option value="09">September</option>
+                <option value="10">Oktober</option>
+                <option value="11">November</option>
+                <option value="12">Desember</option>
+              </select>
+              <select id="filterTahun"></select>
+            </div>
+            <button class="btn-primary" id="btnPrintKeuangan">
+              <i class="fas fa-print"></i>
+              Cetak
+            </button>
+          </div>
+        </div>
+    
+        <div class="keuangan-summary">
+          <div class="summary-card pemasukan">
+            <h4>Total Pemasukan</h4>
+            <p id="totalPemasukan">Rp 0</p>
+          </div>
+          <div class="summary-card pengeluaran">
+            <h4>Total Pengeluaran</h4>
+            <p id="totalPengeluaran">Rp 0</p>
+          </div>
+          <div class="summary-card saldo">
+            <h4>Saldo Bersih</h4>
+            <p id="saldoBulanan">Rp 0</p>
+          </div>
+          <div class="summary-card laba-kotor">
+            <h4>Est. Laba Kotor</h4>
+            <p id="labaKotorBulanan">Rp 0</p>
+          </div>
+          <div class="summary-card laba-bersih">
+            <h4>Est. Laba Bersih</h4>
+            <p id="labaBersihBulanan">Rp 0</p>
+          </div>
+        </div>
+  
+        <div class="keuangan-filter-buttons">
+          <button class="btn-filter-keuangan active" id="btnFilterSemua">
+            <i class="fas fa-list"></i>
+            Semua
+          </button>
+          <button class="btn-filter-keuangan" id="btnFilterTransaksi">
+            <i class="fas fa-shopping-cart"></i>
+            Transaksi
+          </button>
+          <button class="btn-filter-keuangan" id="btnFilterPengeluaran">
+            <i class="fas fa-money-bill-wave"></i>
+            Pengeluaran
+          </button>
+          <button class="btn-filter-keuangan" id="btnFilterBarang">
+            <i class="fas fa-boxes"></i>
+            Barang
+          </button>
+        </div>
+  
+        <div class="table-container">
+          <table class="data-table" id="keuanganTable">
+            <thead>
+              <tr>
+                <th>Tanggal</th>
+                <th>Jenis</th>
+                <th>Nama</th>
+                <th>Alamat</th>
+                <th>Barang (Qty)</th>
+                <th>Harga/Unit</th>
+                <th>Total Harga Jual</th>
+                <th>Total HPP</th>
+                <th>Est. Laba Kotor</th>
+                <th>Status</th>
+                <th>Catatan</th>
+              </tr>
+            </thead>
+            <tbody id="keuanganTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- REALTIME & DIAGRAM SECTION -->
+      <section id="realtime-diagram" class="page">
+        <h3>View Real-time & Diagram Penjualan</h3>
+        <div class="realtime-section">
+          <h4>Statistik Real-time Hari Ini</h4>
+          <div class="realtime-stats">
+            <div class="rt-card">
+              <h4>Transaksi Hari Ini</h4>
+              <p id="rtTransaksi">0</p>
+            </div>
+            <div class="rt-card">
+              <h4>Pemasukan Hari Ini</h4>
+              <p id="rtPemasukan">Rp 0</p>
+            </div>
+            <div class="rt-card">
+              <h4>Barang Terjual</h4>
+              <p id="rtBarangTerjual">0 Item</p>
+            </div>
+          </div>
+          <div class="realtime-transactions">
+            <h4>Transaksi Live</h4>
+            <div id="realtimeList" class="realtime-list"></div>
+          </div>
+        </div>
+
+        <hr class="section-divider" />
+
+        <div class="diagram-section">
+          <div class="diagram-header">
+            <h3>Diagram Penjualan</h3>
+            <div class="diagram-filter">
+              <button class="btn-filter active" data-period="daily">Harian</button>
+              <button class="btn-filter" data-period="weekly">Mingguan</button>
+              <button class="btn-filter" data-period="monthly">Bulanan</button>
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="salesChart"></canvas>
+          </div>
+          <div class="chart-info">
+            <h4>Statistik Periode <span id="periodName">Hari Ini</span></h4>
+            <div class="stats-row">
+              <div class="stat-item">
+                <span>Total Penjualan:</span>
+                <strong id="periodTotal">Rp 0</strong>
+              </div>
+              <div class="stat-item">
+                <span>Rata-rata Penjualan/Periode:</span>
+                <strong id="periodAverage">Rp 0</strong>
+              </div>
+              <div class="stat-item">
+                <span>Total Transaksi:</span>
+                <strong id="periodTransactions">0</strong>
+              </div>
+              <div class="stat-item">
+                <span>Est. Total Laba Kotor:</span>
+                <strong id="periodGrossProfit">Rp 0</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PENGELUARAN SECTION -->
+      <section id="pengeluaran" class="page">
+        <div class="pengeluaran-tabs">
+          <button class="tab-btn active" data-tab="bangunan">Simpan Uang Bangunan</button>
+          <button class="tab-btn" data-tab="takterduga">Biaya Tak Terduga</button>
+          <button class="tab-btn" data-tab="gaji">Gaji Karyawan</button>
+        </div>
+
+<div id="bangunan" class="tab-content active">
+  <div class="section-header">
+    <h3>Deposit Pelanggan</h3>
+    <button class="btn-primary" id="btnTambahBangunan">
+      <i class="fas fa-plus"></i>
+      Tambah Deposit
+    </button>
+  </div>
+  <div class="table-container">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Waktu</th>
+          <th>Nama Pelanggan</th>
+          <th>Jenis</th>
+          <th>Keterangan</th>
+          <th>Jumlah</th>
+          <th>Saldo</th>
+          <th>ID Transaksi</th>
+          <th>Toko</th>
+        </tr>
+      </thead>
+      <tbody id="bangunanTableBody"></tbody>
+    </table>
+  </div>
+  <div class="total-simpanan">
+    <h4>Total Saldo Deposit Pelanggan: <span id="totalBangunan">Rp 0</span></h4>
+  </div>
+</div>
+
+        <!-- Biaya Tak Terduga -->
+        <div id="takterduga" class="tab-content">
+          <div class="section-header">
+            <h3>Biaya Tak Terduga</h3>
+            <button class="btn-primary" id="btnTambahTakTerduga">
+              <i class="fas fa-plus"></i>
+              Tambah Biaya
+            </button>
+          </div>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Waktu</th>
+                  <th>Jenis</th>
+                  <th>Biaya Yang Dikeluarkan</th>
+                  <th>Keterangan</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="takTerdugaTableBody"></tbody>
+            </table>
+          </div>
+          <div class="total-biaya">
+            <h4>Total Biaya Tak Terduga: <span id="totalTakTerduga">Rp 0</span></h4>
+          </div>
+        </div>
+
+        <!-- Gaji Karyawan -->
+        <div id="gaji" class="tab-content">
+          <div class="section-header">
+            <h3>Gaji Karyawan</h3>
+            <button class="btn-primary" id="btnTambahGaji">
+              <i class="fas fa-plus"></i>
+              Tambah Gaji
+            </button>
+          </div>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Waktu</th>
+                  <th>Nama Karyawan</th>
+                  <th>Jumlah Gaji</th>
+                  <th>Keterangan</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="gajiTableBody"></tbody>
+            </table>
+          </div>
+          <div class="total-gaji">
+            <h4>Total Gaji Karyawan: <span id="totalGaji">Rp 0</span></h4>
+          </div>
+        </div>
+      </section>
+      <!-- CATATAN SECTION -->
+<section id="catatan" class="page">
+  <div class="catatan-header">
+    <h3>Catatan Pribadi</h3>
+    <button class="btn-primary" id="btnTambahCatatan">
+      <i class="fas fa-plus"></i>
+      Tambah Catatan
+    </button>
+  </div>
+  
+  <div id="catatanListView" class="catatan-list-view">
+    <div id="catatanListContainer" class="catatan-list-container"></div>
+  </div>
+  
+  <div id="catatanFormView" class="catatan-form-view" style="display: none;">
+    <div class="catatan-form-header">
+      <button class="btn-back" id="btnBackFromForm">
+        <i class="fas fa-arrow-left"></i>
+        Kembali
+      </button>
+      <div class="catatan-form-actions">
+        <button class="btn-secondary" id="btnCancelCatatan">
+          <i class="fas fa-times"></i>
+          Batal
+        </button>
+        <button class="btn-primary" id="btnSaveCatatan">
+          <i class="fas fa-save"></i>
+          Simpan
+        </button>
+      </div>
+    </div>
+    
+    <form id="formCatatan" class="catatan-form">
+      <input type="hidden" id="catatanId" />
+      
+      <div class="form-group">
+        <label>Judul Catatan</label>
+        <input type="text" id="catatanJudul" required placeholder="Masukkan judul catatan..." maxlength="100" />
+      </div>
+      
+      <div class="catatan-meta">
+        <span id="catatanDateTime" class="catatan-datetime"></span>
+        <span id="catatanCharCount" class="catatan-char-count">0 karakter</span>
+      </div>
+      
+      <div class="form-group">
+        <label>Isi Catatan</label>
+        <textarea id="catatanIsi" required placeholder="Tulis catatan Anda di sini..." rows="15"></textarea>
+      </div>
+    </form>
+  </div>
+</section>
+    </main>
+  </div>
+
+<!-- Modal Deposit Pelanggan -->
+<div id="modalBangunan" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h3>Tambah Deposit Pelanggan</h3>
+    <form id="formBangunan">
+      <div class="form-group">
+        <label>Nama Pelanggan</label>
+        <input type="text" id="namaDepositBangunan" required placeholder="Nama lengkap pelanggan" />
+      </div>
+      <div class="form-group">
+        <label>Jumlah Deposit</label>
+        <input type="number" id="jumlahBangunan" required placeholder="Masukkan jumlah" />
+      </div>
+      <div class="form-group">
+        <label>Keterangan</label>
+        <textarea id="keteranganBangunan" rows="3" placeholder="Keterangan (opsional)"></textarea>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn-primary">Simpan</button>
+        <button type="button" class="btn-secondary" id="btnCancelBangunan">Batal</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+  <!-- Modal Biaya Tak Terduga -->
+  <div id="modalTakTerduga" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h3>Tambah Biaya Tak Terduga</h3>
+      <form id="formTakTerduga">
+        <div class="form-group">
+          <label>Jenis</label>
+          <input type="text" id="jenisTakTerduga" required />
+        </div>
+        <div class="form-group">
+          <label>Biaya Yang Dikeluarkan</label>
+          <input type="number" id="biayaTakTerduga" required />
+        </div>
+        <div class="form-group">
+          <label>Keterangan</label>
+          <textarea id="keteranganTakTerduga" rows="3"></textarea>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn-primary">Simpan</button>
+          <button type="button" class="btn-secondary" id="btnCancelTakTerduga">Batal</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Gaji Karyawan -->
+  <div id="modalGaji" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h3>Tambah Gaji Karyawan</h3>
+      <form id="formGaji">
+        <div class="form-group">
+          <label>Nama Karyawan</label>
+          <input type="text" id="namaKaryawanGaji" required />
+        </div>
+        <div class="form-group">
+          <label>Jumlah Gaji</label>
+          <input type="number" id="jumlahGaji" required />
+        </div>
+        <div class="form-group">
+          <label>Keterangan</label>
+          <textarea id="keteranganGaji" rows="3"></textarea>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn-primary">Simpan</button>
+          <button type="button" class="btn-secondary" id="btnCancelGaji">Batal</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+  <script src="global_api.js"></script>
+  <script src="owner.js"></script>
+</body>
+</html>
