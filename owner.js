@@ -579,9 +579,16 @@ function initStokManagement() {
         document.getElementById('stokIndex').value = '';
         
         document.getElementById('stokNamaBarang').value = '';
-        document.getElementById('stokHargaModal').value = 0;
-        document.getElementById('stokHargaKelompok').value = 0;
-        document.getElementById('stokHargaTurunan').value = 0;
+        
+        // ✅ Reset dengan format
+        const modalInput = document.getElementById('stokHargaModal');
+        const kelompokInput = document.getElementById('stokHargaKelompok');
+        const turunanInput = document.getElementById('stokHargaTurunan');
+        
+        modalInput.value = '0';
+        kelompokInput.value = '0';
+        turunanInput.value = '0';
+        
         document.getElementById('stokJumlahKelompok').value = 0;
         document.getElementById('stokJumlahTurunan').value = 0;
         
@@ -602,6 +609,9 @@ function initStokManagement() {
   const banyakItemInput = document.getElementById('stokBanyakItem');  
   if (hargaKelompokInput) hargaKelompokInput.addEventListener('input', calculateHargaTurunan);
   if (banyakItemInput) banyakItemInput.addEventListener('input', calculateHargaTurunan);
+  
+  // ✅ TAMBAHKAN INI DI AKHIR
+  initNumberFormatting();
 }
 
 function fillStokFormForAddStock(barang) {
@@ -623,11 +633,19 @@ function fillStokFormForAddStock(barang) {
   
   document.getElementById('stokBanyakItem').value = barang.banyakItemPerTurunan || 1;
   document.getElementById('stokBanyakItem').readOnly = true;  
-  document.getElementById('stokHargaModal').value = 0;
-  document.getElementById('stokHargaKelompok').value = 0;
-  document.getElementById('stokHargaTurunan').value = 0;  
+  
+  // ✅ Reset nilai harga dengan format
+  const modalInput = document.getElementById('stokHargaModal');
+  const kelompokInput = document.getElementById('stokHargaKelompok');
+  const turunanInput = document.getElementById('stokHargaTurunan');
+  
+  modalInput.value = '0';
+  kelompokInput.value = '0';
+  turunanInput.value = '0';
+  
   document.getElementById('stokJumlahKelompok').value = 0;
   document.getElementById('stokJumlahTurunan').value = 0;  
+  
   document.getElementById('stokIsNew').value = 'false';
   document.getElementById('stokIndex').value = barangData.findIndex(b => b.id === barang.id);
   document.getElementById('stokButtonText').textContent = 'Tambah Stok Barang';  
@@ -755,16 +773,31 @@ function initKelompokButtons() {
 
 function calculateHargaTurunan() {
   const kelompok = document.getElementById('stokJenisKelompok').value;
-  const hargaKelompok = parseFloat(document.getElementById('stokHargaKelompok').value) || 0;
-  const banyakItem = parseFloat(document.getElementById('stokBanyakItem').value) || 1;
-  const hargaTurunanInput = document.getElementById('stokHargaTurunan');  
+  const hargaKelompokInput = document.getElementById('stokHargaKelompok');
+  const banyakItemInput = document.getElementById('stokBanyakItem');
+  const hargaTurunanInput = document.getElementById('stokHargaTurunan');
+  
+  // ✅ Ambil nilai numerik (hapus separator titik)
+  const hargaKelompok = getNumericValue(hargaKelompokInput.value);
+  const banyakItem = parseFloat(banyakItemInput.value) || 1;
   
   if (kelompok !== 'satuan' && banyakItem > 0) {
     const hargaTurunan = Math.round(hargaKelompok / banyakItem);
     hargaTurunanInput.value = hargaTurunan;
+    
+    // ✅ Format harga turunan juga
+    formatNumberInput(hargaTurunanInput);
   } else {
-    hargaTurunanInput.value = 0;
+    hargaTurunanInput.value = '0';
   }
+}
+
+function calculateHargaTurunanFromFormatted() {
+  calculateHargaTurunan();
+}
+
+function calculateHargaTurunanFromFormatted() {
+  calculateHargaTurunan();
 }
 
 function fillStokForm(barang) {
@@ -772,9 +805,20 @@ function fillStokForm(barang) {
   document.getElementById('stokIndex').value = index;
   document.getElementById('stokIdBarang').value = barang.id;
   document.getElementById('stokNamaBarang').value = barang.nama;
-  document.getElementById('stokHargaModal').value = barang.modalBarang || 0;
-  document.getElementById('stokHargaKelompok').value = barang.hargaJualKelompok || 0;
-  document.getElementById('stokHargaTurunan').value = barang.hargaJualTurunan || 0;  
+  
+  // ✅ Set nilai dengan format
+  const modalInput = document.getElementById('stokHargaModal');
+  const kelompokInput = document.getElementById('stokHargaKelompok');
+  const turunanInput = document.getElementById('stokHargaTurunan');
+  
+  modalInput.value = barang.modalBarang || 0;
+  kelompokInput.value = barang.hargaJualKelompok || 0;
+  turunanInput.value = barang.hargaJualTurunan || 0;
+  
+  // ✅ Format setelah set nilai
+  formatNumberInput(modalInput);
+  formatNumberInput(kelompokInput);
+  formatNumberInput(turunanInput);
   
   if (currentStokSource === 'BM1') {
     document.getElementById('stokJumlahKelompok').value = barang.stokKelompokBM1 || 0;
@@ -782,12 +826,12 @@ function fillStokForm(barang) {
   } else {
     document.getElementById('stokJumlahKelompok').value = barang.stokKelompokBM2 || 0;
     document.getElementById('stokJumlahTurunan').value = barang.stokTurunanBM2 || 0;
-  }  
+  }
   
   const jenisKelompok = barang.jenisKelompok || 'Satuan';
-  document.getElementById('stokJenisKelompok').value = jenisKelompok;  
+  document.getElementById('stokJenisKelompok').value = jenisKelompok;
   const banyakItem = barang.banyakItemPerTurunan || 1;
-  document.getElementById('stokBanyakItem').value = banyakItem;  
+  document.getElementById('stokBanyakItem').value = banyakItem;
   
   const buttons = document.querySelectorAll('.btn-kelompok');
   buttons.forEach(b => b.classList.remove('active'));
@@ -804,11 +848,15 @@ function resetStokForm() {
   document.getElementById('idStokAlert').style.display = 'none';
   document.getElementById('stokButtonText').textContent = stokMode === 'add' ? 'Tambah Stok Barang' : 'Tambah Barang';
   document.getElementById('currentStokSourceInput').value = currentStokSource;  
+  
   document.getElementById('stokJumlahKelompok').value = 0;
   document.getElementById('stokJumlahTurunan').value = 0;  
-  document.getElementById('stokHargaModal').value = 0;
-  document.getElementById('stokHargaKelompok').value = 0;
-  document.getElementById('stokHargaTurunan').value = 0;
+  
+  // ✅ Reset harga dengan format
+  document.getElementById('stokHargaModal').value = '0';
+  document.getElementById('stokHargaKelompok').value = '0';
+  document.getElementById('stokHargaTurunan').value = '0';
+  
   document.getElementById('stokIdBarang').value = '';
   document.getElementById('stokIdBarang').readOnly = false;
   document.getElementById('stokNamaBarang').readOnly = false;
@@ -847,9 +895,9 @@ async function handleStokFormSubmit(e) {
   
   const jenisKelompok = document.getElementById('stokJenisKelompok').value;
   const banyakItemPerTurunan = parseInt(document.getElementById('stokBanyakItem').value) || 1;
-  const modalBarang = parseFloat(document.getElementById('stokHargaModal').value) || 0;
-  const hargaJualKelompok = parseFloat(document.getElementById('stokHargaKelompok').value) || 0;
-  const hargaJualTurunan = parseFloat(document.getElementById('stokHargaTurunan').value) || 0;
+  const modalBarang = getNumericValue(document.getElementById('stokHargaModal').value);
+const hargaJualKelompok = getNumericValue(document.getElementById('stokHargaKelompok').value);
+const hargaJualTurunan = getNumericValue(document.getElementById('stokHargaTurunan').value);
   const stokKelompokInput = parseInt(document.getElementById('stokJumlahKelompok').value) || 0;
   const stokTurunanInput = parseInt(document.getElementById('stokJumlahTurunan').value) || 0;
   
@@ -1288,27 +1336,165 @@ window.editBarangStok = function(itemId) {
   }
 };
 
-window.deleteBarangStok = async function(index) {
+window.deleteBarangStok = async function(idBarang) {
   if (!isOnline()) {
     alert('❌ Tidak ada koneksi internet. Hapus data memerlukan koneksi online.');
     return;
-  }  
-  if (confirm('Yakin ingin menghapus barang ini? Tindakan ini tidak dapat dibatalkan!')) {
-    const idToDelete = barangData[index].id;    
+  }
+  
+  const barang = barangData.find(b => b.id === idBarang && b.jenisTransaksi === 'Penambahan Barang Baru');
+  if (!barang) {
+    alert('❌ Barang tidak ditemukan!');
+    return;
+  }
+  
+  if (confirm(`Yakin ingin menghapus "${barang.nama}" (ID: ${idBarang})?\n\nTindakan ini tidak dapat dibatalkan!`)) {
     try {
-      showLoading(true);      
-      await deleteBarangById(idToDelete);      
-      barangData.splice(index, 1);      
+      showLoading(true);
+      
+      // ✅ Panggil API dengan action DELETE_BARANG
+      const result = await sendToSheet("DELETE_BARANG", { id: idBarang });
+      
+      if (!result.success) {
+        throw new Error(result.message || "Gagal menghapus barang");
+      }
+      
+      // ✅ Hapus dari array lokal (SEMUA record dengan ID tersebut)
+      for (let i = barangData.length - 1; i >= 0; i--) {
+        if (barangData[i].id === idBarang) {
+          barangData.splice(i, 1);
+        }
+      }
+      
       renderStokTable();
-      alert('✅ Barang berhasil dihapus!');
-      updateDashboard();      
+      alert(`✅ Barang berhasil dihapus!\n\nTotal ${result.result.count} record dihapus.`);
+      updateDashboard();
+      
     } catch (error) {
-      alert('❌ Gagal menghapus data. Silakan coba lagi.');
+      console.error('Error deleting barang:', error);
+      alert('❌ Gagal menghapus data: ' + (error.message || 'Silakan coba lagi'));
     } finally {
       showLoading(false);
     }
   }
 };
+
+// ==================== AUTO FORMAT NUMBER INPUT ====================
+function formatNumberInput(input) {
+  // Simpan posisi kursor
+  let cursorPosition = input.selectionStart;
+  let oldValue = input.value;
+  let oldLength = oldValue.length;
+  
+  // Hapus semua karakter non-digit
+  let numericValue = oldValue.replace(/\D/g, '');
+  
+  // Jika kosong, set ke 0
+  if (numericValue === '') {
+    input.value = '0';
+    input.setSelectionRange(1, 1);
+    return;
+  }
+  
+  // Hapus leading zeros
+  numericValue = numericValue.replace(/^0+/, '') || '0';
+  
+  // Format dengan separator titik
+  let formattedValue = numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  
+  // Update nilai input
+  input.value = formattedValue;
+  
+  // Hitung berapa banyak titik sebelum kursor
+  let dotsBeforeCursor = (oldValue.substring(0, cursorPosition).match(/\./g) || []).length;
+  let dotsBeforeCursorNew = (formattedValue.substring(0, cursorPosition).match(/\./g) || []).length;
+  
+  // Adjust posisi kursor
+  let newCursorPosition = cursorPosition + (dotsBeforeCursorNew - dotsBeforeCursor);
+  
+  // Pastikan kursor tidak keluar bounds
+  if (newCursorPosition > formattedValue.length) {
+    newCursorPosition = formattedValue.length;
+  }
+  if (newCursorPosition < 0) {
+    newCursorPosition = 0;
+  }
+  
+  // Set posisi kursor
+  try {
+    input.setSelectionRange(newCursorPosition, newCursorPosition);
+  } catch (e) {
+    // Fallback jika setSelectionRange gagal
+    input.focus();
+  }
+}
+
+function getNumericValue(formattedValue) {
+  // Konversi "20.000" menjadi 20000
+  if (!formattedValue || formattedValue === '') return 0;
+  return parseInt(formattedValue.replace(/\./g, '')) || 0;
+}
+
+function initNumberFormatting() {
+  const numberInputs = [
+    'stokHargaModal',
+    'stokHargaKelompok',
+    'stokHargaTurunan'
+  ];
+  
+  numberInputs.forEach(inputId => {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    
+    // Format saat mengetik
+    input.addEventListener('input', function(e) {
+      formatNumberInput(this);
+      
+      // Trigger calculate untuk harga turunan jika yang diubah adalah harga kelompok
+      if (inputId === 'stokHargaKelompok') {
+        calculateHargaTurunanFromFormatted();
+      }
+    });
+    
+    // Format saat paste
+    input.addEventListener('paste', function(e) {
+      setTimeout(() => formatNumberInput(this), 10);
+    });
+    
+    // Format saat blur (kehilangan fokus)
+    input.addEventListener('blur', function(e) {
+      if (this.value === '' || this.value === '0') {
+        this.value = '0';
+      }
+      formatNumberInput(this);
+    });
+    
+    // Format saat focus
+    input.addEventListener('focus', function(e) {
+      // Jika nilai 0, select all untuk kemudahan edit
+      if (this.value === '0') {
+        this.select();
+      }
+    });
+    
+    // Cegah input non-numeric (kecuali backspace, delete, arrow keys)
+    input.addEventListener('keydown', function(e) {
+      const allowedKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Home', 'End'];
+      const isNumber = /^[0-9]$/.test(e.key);
+      const isAllowed = allowedKeys.includes(e.key);
+      const isCtrlCmd = e.ctrlKey || e.metaKey; // Allow Ctrl+A, Ctrl+C, etc
+      
+      if (!isNumber && !isAllowed && !isCtrlCmd) {
+        e.preventDefault();
+      }
+    });
+    
+    // Format nilai awal
+    if (input.value && input.value !== '0') {
+      formatNumberInput(input);
+    }
+  });
+}
 
 function calculateGrossProfit(transaction) {
   if (transaction.jenis !== 'Pemasukan' || !transaction.items || !Array.isArray(transaction.items)) {
